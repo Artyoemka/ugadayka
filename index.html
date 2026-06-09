@@ -561,6 +561,8 @@
   }
   .app-footer a:hover { color: var(--accent-text); border-color: var(--accent); }
   .app-footer .contact-email { color: var(--text-muted); user-select: all; -webkit-user-select: all; }
+  .app-footer a.donate { color: var(--accent-text); border-color: rgba(224,112,112,0.45); }
+  .app-footer a.donate:hover { color: #fff; background: var(--accent-bg); border-color: var(--accent); }
 
   /* Гайд по установке */
   .install-steps { display: flex; flex-direction: column; gap: 10px; margin: 8px 0 4px; }
@@ -573,6 +575,16 @@
   .install-step-ic { font-size: 24px; line-height: 1; flex-shrink: 0; }
   .install-step b { color: var(--text); }
   .install-step.current { border-color: var(--accent); background: var(--accent-bg); }
+
+  /* Плашка установки на стартовом экране */
+  .install-banner {
+    display: flex; align-items: center; gap: 16px; justify-content: space-between; flex-wrap: wrap;
+    border-color: rgba(224,112,112,0.3);
+    background: linear-gradient(135deg, rgba(236,143,143,0.10), rgba(217,106,106,0.04));
+  }
+  .install-banner-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .install-banner-sub { font-size: 13px; color: var(--text-muted); }
+  .install-banner .btn { flex-shrink: 0; }
 
   /* Логотип в шапке */
   .header-text h1 { display: flex; align-items: center; gap: 10px; }
@@ -1117,6 +1129,13 @@
 
   <!-- === WELCOME === -->
   <div id="welcomeCard">
+    <div class="card install-banner" id="installBanner" style="display:none;">
+      <div class="install-banner-text">
+        <div class="install-banner-title">📲 Установить как приложение</div>
+        <div class="install-banner-sub">Иконка на телефоне или рабочем столе, запуск в своём окне, работа без интернета.</div>
+      </div>
+      <button class="btn primary" id="installBannerBtn">Как установить</button>
+    </div>
     <div class="card">
       <div class="welcome-hero" id="welcomeHeroNormal">
         <h2>Добро пожаловать</h2>
@@ -1314,7 +1333,8 @@
 
   <footer class="app-footer">
     © 2026 Артём Колосов · «Угадайка»<br>
-    <a href="https://t.me/ArtyoemkaBlog" target="_blank" rel="noopener">Telegram автора</a><br>
+    <a href="https://t.me/ArtyoemkaBlog" target="_blank" rel="noopener">Telegram автора</a>
+    · <a href="https://web.tribute.tg/d/LEX" target="_blank" rel="noopener" class="donate">💜 Поддержать автора</a><br>
     Почта для связи: <span class="contact-email">a.kolosov2003@mail.ru</span>
   </footer>
 </div>
@@ -3345,8 +3365,9 @@ function canInstallContext() {
   return location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 }
 function maybeShowInstallBtn() {
-  const btn = $('installBtn');
-  if (btn) btn.style.display = (!isAppInstalled() && canInstallContext()) ? '' : 'none';
+  const show = !isAppInstalled() && canInstallContext();
+  const btn = $('installBtn'); if (btn) btn.style.display = show ? '' : 'none';
+  const banner = $('installBanner'); if (banner) banner.style.display = show ? 'flex' : 'none';
 }
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstallPrompt = e; maybeShowInstallBtn(); });
 window.addEventListener('appinstalled', () => { deferredInstallPrompt = null; const b = $('installBtn'); if (b) b.style.display = 'none'; });
@@ -3382,6 +3403,7 @@ function adaptForMobile() {
   const help = document.querySelector('.folder-help'); if (help) help.style.display = 'none';
 }
 $('installBtn').onclick = onInstallClick;
+$('installBannerBtn').onclick = onInstallClick;
 $('installClose').onclick = closeInstallGuide;
 $('installModal').addEventListener('click', (e) => { if (e.target.id === 'installModal') closeInstallGuide(); });
 
