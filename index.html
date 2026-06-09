@@ -13,6 +13,18 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Угадайка">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Угадайка">
+<meta property="og:title" content="Угадайка — музыкальный тренажёр">
+<meta property="og:description" content="Слушай фрагменты и угадывай автора и произведение. Загружай свои треки. Работает офлайн, ставится как приложение.">
+<meta property="og:url" content="https://artyoemka.github.io/ugadayka/">
+<meta property="og:image" content="https://artyoemka.github.io/ugadayka/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Угадайка — музыкальный тренажёр">
+<meta name="twitter:description" content="Слушай фрагменты и угадывай автора и произведение.">
+<meta name="twitter:image" content="https://artyoemka.github.io/ugadayka/preview.png">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -550,6 +562,23 @@
   .app-footer a:hover { color: var(--accent-text); border-color: var(--accent); }
   .app-footer .contact-email { color: var(--text-muted); user-select: all; -webkit-user-select: all; }
 
+  /* Гайд по установке */
+  .install-steps { display: flex; flex-direction: column; gap: 10px; margin: 8px 0 4px; }
+  .install-step {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 14px; font-size: 14px; line-height: 1.5;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border); border-radius: 10px;
+  }
+  .install-step-ic { font-size: 24px; line-height: 1; flex-shrink: 0; }
+  .install-step b { color: var(--text); }
+  .install-step.current { border-color: var(--accent); background: var(--accent-bg); }
+
+  /* Логотип в шапке */
+  .header-text h1 { display: flex; align-items: center; gap: 10px; }
+  .logo-mark { display: inline-flex; flex-shrink: 0; line-height: 0; }
+  .logo-mark svg { display: block; filter: drop-shadow(0 2px 6px rgba(224,112,112,0.35)); }
+
   .quiz-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -1068,7 +1097,7 @@
 
   <div class="header">
     <div class="header-text" style="position:relative;">
-      <h1>Угадайка</h1>
+      <h1><span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 32 32" width="30" height="30"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ec8f8f"/><stop offset="1" stop-color="#d96a6a"/></linearGradient></defs><ellipse cx="11" cy="22.5" rx="6" ry="4.6" fill="url(#lg)"/><rect x="15.8" y="6" width="2.7" height="17" rx="1.35" fill="url(#lg)"/><path d="M18.5 6c5 1 6.4 4.6 4.3 8.6 1-3.4-.8-5.8-4.3-6.4z" fill="url(#lg)"/></svg></span>Угадайка</h1>
       <div class="subtitle">
         <span class="deck-picker" id="deckPicker">
           <span id="deckPickerName">Мои треки</span>
@@ -1080,6 +1109,7 @@
       <div class="deck-picker-menu" id="deckPickerMenu"></div>
     </div>
     <div class="header-actions">
+      <button class="icon-btn" id="installBtn" title="Установить приложение" style="display:none;">📲</button>
       <button class="icon-btn" id="libraryBtn" title="Библиотека">📋</button>
       <button class="icon-btn" id="settingsBtn" title="Настройки">⚙</button>
     </div>
@@ -1379,6 +1409,32 @@
       <div style="flex:1"></div>
       <button class="btn primary" id="noteEditorSave">Сохранить</button>
     </div>
+  </div>
+</div>
+
+<!-- === INSTALL GUIDE === -->
+<div class="modal-backdrop" id="installModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Установить приложение</h2>
+      <button class="btn ghost" id="installClose" style="padding:4px 10px; font-size:18px;">×</button>
+    </div>
+    <p>«Угадайка» ставится как обычное приложение: иконка на экране, открывается в своём окне, работает без интернета.</p>
+    <div class="install-steps">
+      <div class="install-step" data-plat="desktop">
+        <div class="install-step-ic">💻</div>
+        <div><b>Компьютер (Chrome / Edge)</b><br>Значок установки в правой части адресной строки, либо меню ⋮ → «Установить приложение».</div>
+      </div>
+      <div class="install-step" data-plat="android">
+        <div class="install-step-ic">🤖</div>
+        <div><b>Android (Chrome)</b><br>Меню ⋮ (три точки) → «Установить приложение» / «Добавить на главный экран».</div>
+      </div>
+      <div class="install-step" data-plat="ios">
+        <div class="install-step-ic">🍏</div>
+        <div><b>iPhone / iPad (Safari)</b><br>Кнопка «Поделиться» (квадрат со стрелкой ⬆️) → «На экран «Домой».</div>
+      </div>
+    </div>
+    <div class="modal-status" id="installHint"></div>
   </div>
 </div>
 
@@ -2809,7 +2865,10 @@ function updateWelcomeForTracks() {
   if (dz) {
     dz.classList.toggle('compact', !empty);
     const title = dz.querySelector('.dropzone-title');
-    if (title) title.textContent = empty ? 'Перетащите сюда аудиофайлы' : '＋ Добавить свои треки (или перетащите файл)';
+    if (title) {
+      if (empty) title.textContent = isMobile() ? 'Нажмите, чтобы выбрать аудиофайлы' : 'Перетащите сюда аудиофайлы';
+      else title.textContent = isMobile() ? '＋ Добавить свои треки' : '＋ Добавить свои треки (или перетащите файл)';
+    }
   }
   const refreshBtn = $('refreshFolderBtn');
   if (refreshBtn) refreshBtn.style.display = (decks[activeDeckId] && decks[activeDeckId].fromFolder) ? '' : 'none';
@@ -3271,6 +3330,61 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'n' || e.key === 'N' || e.key === 'т' || e.key === 'Т') { if (inReveal && !isExamMode) skip(); }
 });
 
+// === Установка приложения (PWA) + адаптация под телефон ===
+function isMobile() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (window.matchMedia && matchMedia('(pointer: coarse)').matches);
+}
+function isIOSDevice() {
+  return /iPad|iPhone|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+let deferredInstallPrompt = null;
+function isAppInstalled() {
+  return (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+}
+function canInstallContext() {
+  return location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+}
+function maybeShowInstallBtn() {
+  const btn = $('installBtn');
+  if (btn) btn.style.display = (!isAppInstalled() && canInstallContext()) ? '' : 'none';
+}
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstallPrompt = e; maybeShowInstallBtn(); });
+window.addEventListener('appinstalled', () => { deferredInstallPrompt = null; const b = $('installBtn'); if (b) b.style.display = 'none'; });
+async function onInstallClick() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    try { await deferredInstallPrompt.userChoice; } catch {}
+    deferredInstallPrompt = null;
+    maybeShowInstallBtn();
+  } else {
+    openInstallGuide();
+  }
+}
+function openInstallGuide() {
+  const plat = isIOSDevice() ? 'ios' : (isMobile() ? 'android' : 'desktop');
+  document.querySelectorAll('#installModal .install-step').forEach((s) => s.classList.toggle('current', s.dataset.plat === plat));
+  const hint = $('installHint');
+  if (hint) {
+    hint.className = 'modal-status';
+    hint.textContent = ({
+      ios: 'На вашем устройстве: Safari → «Поделиться» → «На экран «Домой».',
+      android: 'На вашем устройстве: меню браузера ⋮ → «Установить приложение».',
+      desktop: 'На вашем устройстве: значок установки в адресной строке или меню браузера.',
+    })[plat] || '';
+  }
+  $('installModal').classList.add('visible');
+}
+function closeInstallGuide() { $('installModal').classList.remove('visible'); }
+// На телефоне импорт папки не работает — прячем его, упор на выбор отдельных файлов
+function adaptForMobile() {
+  if (!isMobile()) return;
+  const row = document.querySelector('.folder-import-row'); if (row) row.style.display = 'none';
+  const help = document.querySelector('.folder-help'); if (help) help.style.display = 'none';
+}
+$('installBtn').onclick = onInstallClick;
+$('installClose').onclick = closeInstallGuide;
+$('installModal').addEventListener('click', (e) => { if (e.target.id === 'installModal') closeInstallGuide(); });
+
 // === Init ===
 try {
   recomputeActive();
@@ -3284,6 +3398,8 @@ try {
   prepareAllBlobUrls().catch(()=>{});
   showOnly('welcomeCard');
   updateComposerSectionVisibility();
+  maybeShowInstallBtn();
+  adaptForMobile();
 } catch (e) {
   console.error('Init failed:', e);
   alert('Ошибка инициализации: ' + (e && e.message ? e.message : e));
