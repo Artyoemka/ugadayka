@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Угадайка — свои треки</title>
-<meta name="description" content="Угадайка — музыкальный тренажёр по музлитературе: слушай фрагменты, угадывай автора и произведение. Загружай свои треки папкой.">
+<title>Угадайка — тренажёр по музлитературе: угадай композитора и произведение</title>
+<meta name="description" content="Бесплатный онлайн-тренажёр по музыкальной литературе: слушайте фрагменты, угадывайте композитора и произведение, готовьтесь к экзамену. Свои треки, работает офлайн, без регистрации.">
 <meta name="theme-color" content="#0d0d10">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
@@ -25,6 +25,9 @@
 <meta name="twitter:title" content="Угадайка — музыкальный тренажёр">
 <meta name="twitter:description" content="Слушай фрагменты и угадывай автора и произведение.">
 <meta name="twitter:image" content="https://musquiz.ru/preview.png">
+<link rel="canonical" href="https://musquiz.ru/">
+<meta name="keywords" content="музлитература, музыкальная литература, тренажёр по музлитературе, угадайка музыкальная, угадать композитора, угадать произведение по фрагменту, тест по музыкальной литературе, экзамен по музлитературе, викторина классическая музыка, музыкальная викторина онлайн, слушание музыки, подготовка к экзамену музыкальное училище">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Угадайка — музыкальный тренажёр", "url": "https://musquiz.ru/", "applicationCategory": "EducationalApplication", "operatingSystem": "Any", "inLanguage": "ru", "description": "Бесплатный онлайн-тренажёр по музыкальной литературе: слушайте фрагменты, угадывайте композитора и произведение, готовьтесь к экзамену. Свои треки, работает офлайн, без регистрации.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "RUB"}, "author": {"@type": "Person", "name": "Артём Колосов"}}</script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -54,6 +57,7 @@
   }
   html, body {
     height: 100%;
+    overscroll-behavior-y: none;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
     background: var(--bg);
     color: var(--text);
@@ -77,7 +81,15 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 24px;
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    padding: 10px 12px;
+    margin: 0 -12px 24px;
+    background: rgba(13,13,16,0.82);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-radius: 0 0 14px 14px;
   }
   .header-text h1 {
     font-size: 30px;
@@ -1231,7 +1243,7 @@
         <div class="dropzone-title">Перетащите сюда аудиофайлы</div>
         <div class="dropzone-sub">или нажмите, чтобы выбрать — MP3, WAV, M4A…</div>
       </div>
-      <input type="file" id="welcomeFilePicker" accept="audio/*" multiple style="display:none;">
+      <input type="file" id="welcomeFilePicker" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.oga,.flac,.opus" multiple style="display:none;">
 
       <div class="folder-import-row">
         <button class="btn" id="importFolderBtn">📁 Загрузить папку целиком</button>
@@ -1319,7 +1331,7 @@
       </div>
       <audio id="audioPlayer"></audio>
       <div class="player" id="playerUI">
-        <button class="player-btn" id="playerToggle" title="Играть / пауза">▶</button>
+        <button class="player-btn" id="playerToggle" title="Играть / пауза"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></button>
         <div class="player-mid">
           <div class="player-bar" id="playerBar"><div class="player-fill" id="playerFill"></div></div>
           <div class="player-time" id="playerTime">0:00 / 0:00</div>
@@ -1506,7 +1518,7 @@
         <button class="btn full" id="addTrackPickBtn">Выбрать файлы…</button>
       </div>
       <div class="modal-status" id="addTrackFileInfo"></div>
-      <input type="file" id="addTrackFile" accept="audio/*" multiple style="display:none;">
+      <input type="file" id="addTrackFile" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.oga,.flac,.opus" multiple style="display:none;">
     </div>
 
     <h3>Композитор</h3>
@@ -2024,6 +2036,8 @@ function switchDeck(deckId) {
     libStatusFilter = 'all';
     buildLibrary();
   }
+  // Если открыта Статистика — пересчитать под новую деку
+  if ($('statsCard') && $('statsCard').style.display !== 'none') renderStats();
   // Background prepare blob URLs for any custom tracks
   prepareAllBlobUrls().catch(()=>{});
 }
@@ -2381,7 +2395,9 @@ function renderTrackList() {
           ${(s.correct + s.wrong) > 0 ? `<span>${s.correct}/${s.wrong}</span>` : ''}
         </div>
       </div>
-      <button class="track-play" title="Послушать">${isActive ? '■' : '▶'}</button>
+      <button class="track-play" title="Послушать">${isActive
+        ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M7 7h10v10H7z"/></svg>'
+        : '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>'}</button>
     `;
     row.onclick = (e) => {
       e.stopPropagation();
@@ -3156,7 +3172,7 @@ function closeAddTrack() {
   addTrackMode = 'add';
   editingTrackId = null;
 }
-const AUDIO_EXT_RE = /\.(mp3|wav|m4a|ogg|flac|aac)$/i;
+const AUDIO_EXT_RE = /\.(mp3|wav|m4a|ogg|oga|opus|flac|aac)$/i;
 function isAudioFile(f) {
   return /^audio\//.test(f.type) || AUDIO_EXT_RE.test(f.name);
 }
@@ -3610,9 +3626,11 @@ $('shareResultBtn').onclick = shareResult;
     const m = Math.floor(s / 60), ss = Math.floor(s % 60);
     return m + ':' + String(ss).padStart(2, '0');
   }
+  const ICON_PLAY = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
+  const ICON_PAUSE = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z"/></svg>';
   function paintPlayState() {
     const playing = !audio.paused && !audio.ended;
-    toggle.textContent = playing ? '⏸' : '▶';
+    toggle.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
     statusEl.textContent = playing ? '♪ играет…' : 'пауза';
   }
   function paintProgress() {
