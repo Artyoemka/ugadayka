@@ -1,4 +1,4 @@
-const CACHE = 'ugadayka-dc30af67';
+const CACHE = 'ugadayka-7edee312';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-512-maskable.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
