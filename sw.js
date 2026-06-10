@@ -1,4 +1,4 @@
-const CACHE = 'ugadayka-ef8e387b';
+const CACHE = 'ugadayka-bfea2d11';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-512-maskable.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -11,22 +11,26 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
   const isNav = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
   if (isNav) {
-    // HTML: сеть сначала (свежая версия), офлайн — из кэша
+    // HTML: сеть сначала (свежая версия); кэшируем только успешный ответ
     e.respondWith(
       fetch(req).then((resp) => {
-        const copy = resp.clone();
-        caches.open(CACHE).then((c) => c.put('./index.html', copy)).catch(() => {});
+        if (resp.ok) {
+          const c1 = resp.clone(), c2 = resp.clone();
+          caches.open(CACHE).then((c) => { c.put('./index.html', c1); c.put('./', c2); }).catch(() => {});
+        }
         return resp;
-      }).catch(() => caches.match(req).then((c) => c || caches.match('./index.html')))
+      }).catch(() => caches.match('./index.html').then((c) => c || caches.match(req)))
     );
     return;
   }
-  // Статика: кэш сначала
+  // Статика: кэш сначала; при провале НЕ подсовываем HTML — пусть запрос честно падает
   e.respondWith(
     caches.match(req).then((cached) => cached || fetch(req).then((resp) => {
-      const copy = resp.clone();
-      if (resp.ok && req.url.startsWith(self.location.origin)) caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+      if (resp.ok && req.url.startsWith(self.location.origin)) {
+        const copy = resp.clone();
+        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+      }
       return resp;
-    }).catch(() => caches.match('./index.html')))
+    }))
   );
 });

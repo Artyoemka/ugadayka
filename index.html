@@ -39,7 +39,7 @@
     --border-strong: rgba(255,255,255,0.22);
     --text: #f0f0f4;
     --text-muted: #a0a0ab;
-    --text-dim: #70707a;
+    --text-dim: #8a8a94;
     --accent: #e07070;
     --accent-bg: rgba(224,112,112,0.16);
     --accent-text: #ea9090;
@@ -67,7 +67,7 @@
     -webkit-font-smoothing: antialiased;
   }
   body {
-    padding: 36px 24px 56px;
+    padding: 36px calc(24px + env(safe-area-inset-right)) calc(56px + env(safe-area-inset-bottom)) calc(24px + env(safe-area-inset-left));
     background:
       radial-gradient(900px 480px at 50% -10%, rgba(224,112,112,0.10), transparent 60%),
       radial-gradient(1100px 700px at 100% 0%, rgba(130,168,208,0.06), transparent 55%),
@@ -84,7 +84,7 @@
     position: sticky;
     top: 0;
     z-index: 60;
-    padding: 10px 12px;
+    padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
     margin: 0 -12px 24px;
     background: rgba(13,13,16,0.82);
     -webkit-backdrop-filter: blur(12px);
@@ -615,6 +615,25 @@
   .player.no-seek .player-status { display: block; }
   @media (pointer: coarse) {
     .player-vol { display: none; } /* на телефоне громкость — кнопками устройства */
+    .kbd-hint, .kbd-legend { display: none; } /* на тач-устройствах клавиатуры нет */
+    /* iOS зумит страницу при фокусе полей с шрифтом <16px */
+    #noteEditorText, #addTrackNote, .text-input { font-size: 16px; }
+    /* Минимальные тач-таргеты */
+    .btn-mini { min-height: 40px; min-width: 40px; padding: 8px 12px; }
+    .track-play { width: 44px; height: 44px; }
+    .deck-picker { min-height: 40px; }
+    .modal-header .btn.ghost { min-width: 44px; min-height: 44px; }
+  }
+  /* На тач-устройствах hover «залипает» после тапа — нейтрализуем основные эффекты */
+  @media (hover: none) {
+    .btn:hover { background: var(--bg-card); border-color: var(--border); transform: none; }
+    .btn.primary:hover { background: var(--accent-grad); filter: none; }
+    .pill:hover { background: var(--bg-card); border-color: var(--border-strong); }
+    .mode-card:hover { background: var(--bg-card); border-color: var(--border); }
+    .mode-card.selected:hover { background: var(--accent-bg); border-color: var(--accent); }
+    .track-row:hover { background: rgba(255,255,255,0.03); border-color: var(--border); }
+    .icon-btn:hover { background: var(--bg-card); color: var(--text-muted); }
+    .dropzone:hover { border-color: var(--border-strong); background: rgba(255,255,255,0.02); }
   }
 
   /* === Статистика === */
@@ -623,7 +642,7 @@
   .stats-big-label { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
   .stats-comp-row { display: flex; align-items: center; gap: 12px; padding: 9px 2px; border-bottom: 1px solid var(--border); }
   .stats-comp-row:last-child { border-bottom: none; }
-  .stats-comp-name { width: 130px; flex-shrink: 0; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stats-comp-name { width: clamp(84px, 32%, 130px); flex-shrink: 0; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .stats-comp-bar { flex: 1; height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
   .stats-comp-fill { height: 100%; background: var(--success); border-radius: 4px; }
   .stats-comp-nums { width: 64px; text-align: right; font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; flex-shrink: 0; }
@@ -664,6 +683,18 @@
   .qr-caption { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
   .qr-caption b { color: var(--text); }
 
+  /* Управление деками */
+  .deck-mgr-row {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 10px 12px; margin-bottom: 8px;
+    border: 1px solid var(--border); border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+  }
+  .deck-mgr-row.active { border-color: var(--accent); background: var(--accent-bg); }
+  .deck-mgr-info { flex: 1; min-width: 130px; }
+  .deck-mgr-name { font-size: 14px; color: var(--text); }
+  .deck-mgr-count { font-size: 12px; color: var(--text-muted); }
+
   /* Плашка установки на стартовом экране */
   .install-banner {
     display: flex; align-items: center; gap: 16px; justify-content: space-between; flex-wrap: wrap;
@@ -684,6 +715,9 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
     margin-bottom: 14px;
+  }
+  @media (max-width: 600px) {
+    .quiz-stats { grid-template-columns: repeat(2, 1fr); }
   }
   .qs-cell {
     background: var(--bg-card);
@@ -1199,7 +1233,7 @@
     <div class="header-text" style="position:relative;">
       <h1><span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 32 32" width="30" height="30"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ec8f8f"/><stop offset="1" stop-color="#d96a6a"/></linearGradient></defs><ellipse cx="11" cy="22.5" rx="6" ry="4.6" fill="url(#lg)"/><rect x="15.8" y="6" width="2.7" height="17" rx="1.35" fill="url(#lg)"/><path d="M18.5 6c5 1 6.4 4.6 4.3 8.6 1-3.4-.8-5.8-4.3-6.4z" fill="url(#lg)"/></svg></span>Угадайка</h1>
       <div class="subtitle">
-        <span class="deck-picker" id="deckPicker">
+        <span class="deck-picker" id="deckPicker" tabindex="0" role="button" aria-haspopup="menu">
           <span id="deckPickerName">Мои треки</span>
           <span class="deck-picker-arrow">▾</span>
         </span>
@@ -1238,7 +1272,7 @@
     </div>
 
     <div class="card">
-      <div id="dropZone" class="dropzone">
+      <div id="dropZone" class="dropzone" tabindex="0" role="button" aria-label="Добавить аудиофайлы">
         <div class="dropzone-icon">🎵</div>
         <div class="dropzone-title">Перетащите сюда аудиофайлы</div>
         <div class="dropzone-sub">или нажмите, чтобы выбрать — MP3, WAV, M4A…</div>
@@ -1333,7 +1367,7 @@
       <div class="player" id="playerUI">
         <button class="player-btn" id="playerToggle" title="Играть / пауза"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></button>
         <div class="player-mid">
-          <div class="player-bar" id="playerBar"><div class="player-fill" id="playerFill"></div></div>
+          <div class="player-bar" id="playerBar" tabindex="0" role="slider" aria-label="Перемотка (стрелки ←→)"><div class="player-fill" id="playerFill"></div></div>
           <div class="player-time" id="playerTime">0:00 / 0:00</div>
         </div>
         <div class="player-status" id="playerStatus">пауза</div>
@@ -1345,7 +1379,7 @@
       </div>
       <div class="hint" id="quizHint">Слушайте 12-секундный фрагмент и пробуйте вспомнить</div>
 
-      <div class="answer-box" id="answerBox">
+      <div class="answer-box" id="answerBox" aria-live="polite">
         <div class="answer-label">Композитор</div>
         <div class="answer-composer" id="answerComposer"></div>
         <div class="answer-label">Произведение</div>
@@ -1392,7 +1426,7 @@
     <div class="actions" style="margin-top:8px;">
       <button class="btn ghost" id="restartBtn">← В меню</button>
       <div style="flex:1"></div>
-      <span class="hint" style="margin:0;">Space — пауза · R — повтор фрагмента · Enter — ответ · 1/2/3 — оценка · N — пропуск</span>
+      <span class="hint kbd-legend" id="kbdLegend" style="margin:0;">Space — пауза · R — повтор фрагмента · Enter — ответ · 1/2/3 — оценка · N — пропуск</span>
     </div>
   </div>
 
@@ -1426,14 +1460,14 @@
       </div>
       <div class="stats-overall">
         <div class="stats-big" id="statsLearnedPct">0%</div>
-        <div class="stats-big-label">треков выучено полностью</div>
+        <div class="stats-big-label">треков выучено полностью · точность ответов <span id="stAccuracy">—</span></div>
         <div class="player-bar" style="cursor:default; height:8px; margin-top:10px;"><div class="player-fill" id="statsFill"></div></div>
       </div>
       <div class="quiz-stats" style="margin-top:16px;">
         <div class="qs-cell"><div class="qs-label">Выучено</div><div class="qs-value" style="color:var(--success);" id="stLearned">0</div></div>
+        <div class="qs-cell"><div class="qs-label">В процессе</div><div class="qs-value" id="stSeen">0</div></div>
         <div class="qs-cell"><div class="qs-label">С ошибкой</div><div class="qs-value" style="color:var(--accent-text);" id="stWrong">0</div></div>
         <div class="qs-cell"><div class="qs-label">Не открывали</div><div class="qs-value" style="color:var(--info);" id="stNew">0</div></div>
-        <div class="qs-cell"><div class="qs-label">Точность</div><div class="qs-value" id="stAccuracy">—</div></div>
       </div>
       <div class="section-sub" style="margin-top:18px;">По авторам</div>
       <div id="statsComposers"></div>
@@ -1457,7 +1491,7 @@
   </div>
 
   <footer class="app-footer">
-    © 2026 Артём Колосов · «Угадайка»<br>
+    © 2026 Артём Колосов · «Угадайка»<span id="buildVer"> · сборка bfea2d11</span><br>
     <a href="https://t.me/ArtyoemkaBlog" target="_blank" rel="noopener">Telegram автора</a>
     · <a href="https://web.tribute.tg/d/LEX" target="_blank" rel="noopener" class="donate">💜 Поддержать автора</a><br>
     Почта для связи: <span class="contact-email">a.kolosov2003@mail.ru</span>
@@ -1466,7 +1500,7 @@
 
 <!-- === SETTINGS MODAL === -->
 <div class="modal-backdrop" id="settingsModal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Настройки">
     <div class="modal-header">
       <h2>Настройки</h2>
       <button class="btn ghost" id="settingsClose" style="padding:4px 10px; font-size:18px;">×</button>
@@ -1480,7 +1514,7 @@
     </label>
 
     <h3>Источник аудио</h3>
-    <p>Если HTML лежит рядом с папками композиторов, всё работает само. Иначе укажите папку вручную.</p>
+    <p>Если HTML лежит рядом с папками композиторов, всё работает само. Иначе укажите папку вручную. Выбор папки действует до закрытия вкладки и не входит в бэкап.</p>
     <div class="actions">
       <button class="btn full" id="pickFolderBtn">Указать папку с аудио</button>
     </div>
@@ -1492,6 +1526,9 @@
     <div class="actions">
       <button class="btn" id="exportBtn" style="flex:1;">💾 Сохранить в файл</button>
       <button class="btn" id="importBtn" style="flex:1;">📂 Восстановить из файла</button>
+    </div>
+    <div class="actions">
+      <button class="btn full" id="shareDeckBtn">📤 Поделиться текущей декой (файл для друзей)</button>
     </div>
     <input type="file" id="importFile" accept=".json,application/json" style="display:none;">
     <div class="modal-status" id="progressStatus"></div>
@@ -1505,14 +1542,14 @@
 
 <!-- === ADD TRACK === -->
 <div class="modal-backdrop" id="addTrackModal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Добавить трек">
     <div class="modal-header">
       <h2 id="addTrackModalTitle">Добавить трек</h2>
       <button class="btn ghost" id="addTrackClose" style="padding:4px 10px; font-size:18px;">×</button>
     </div>
 
     <div id="addTrackFilesSection">
-      <p>Загрузите MP3 или WAV — можно сразу несколько. Перетащите файлы сюда или выберите кнопкой. Всё сохранится прямо в браузере, ничего никуда не отправляется.</p>
+      <p>Загрузите аудио (MP3, WAV, M4A, FLAC и др.) — можно сразу несколько. Перетащите файлы сюда или выберите кнопкой. Всё сохранится прямо в браузере, ничего никуда не отправляется.</p>
       <h3>Файлы</h3>
       <div class="actions">
         <button class="btn full" id="addTrackPickBtn">Выбрать файлы…</button>
@@ -1541,7 +1578,7 @@
 
 <!-- === EDITOR NOTES === -->
 <div class="modal-backdrop" id="noteEditorModal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Заметка к треку">
     <div class="modal-header">
       <h2>Заметка к треку</h2>
       <button class="btn ghost" id="noteEditorClose" style="padding:4px 10px; font-size:18px;">×</button>
@@ -1559,7 +1596,7 @@
 
 <!-- === INSTALL GUIDE === -->
 <div class="modal-backdrop" id="installModal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Установить приложение">
     <div class="modal-header">
       <h2>Установить приложение</h2>
       <button class="btn ghost" id="installClose" style="padding:4px 10px; font-size:18px;">×</button>
@@ -1576,7 +1613,7 @@
       </div>
       <div class="install-step" data-plat="ios">
         <div class="install-step-ic">🍏</div>
-        <div><b>iPhone / iPad (Safari)</b><br>Кнопка «Поделиться» (квадрат со стрелкой ⬆️) → «На экран «Домой».</div>
+        <div><b>iPhone / iPad (Safari)</b><br>Кнопка «Поделиться» (квадрат со стрелкой ⬆️) → «На экран «Домой».<br><span style="color:var(--text-muted); font-size:12px;">Важно: у установленного приложения своё хранилище — треки и прогресс перенесите бэкапом (⚙ → «Сохранить в файл», затем в приложении «Восстановить»).</span></div>
       </div>
     </div>
     <div class="modal-status" id="installHint"></div>
@@ -1585,6 +1622,22 @@
       <img id="qrImg" alt="QR-код" width="170" height="170">
       <div class="qr-caption">Наведите камеру телефона —<br>откроется <b>musquiz.ru</b></div>
     </div>
+  </div>
+</div>
+
+<!-- === DECK MANAGER === -->
+<div class="modal-backdrop" id="deckManagerModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Управление деками">
+    <div class="modal-header">
+      <h2>Управление деками</h2>
+      <button class="btn ghost" id="deckManagerClose" style="padding:4px 10px; font-size:18px;">×</button>
+    </div>
+    <p>Дека — отдельный набор треков со своим прогрессом. Кнопка 📤 сохраняет деку в файл — отправьте его друзьям, они импортируют через ⚙ → «Восстановить из файла».</p>
+    <div id="deckManagerList"></div>
+    <div class="actions">
+      <button class="btn full" id="deckManagerCreate">➕ Создать новую деку</button>
+    </div>
+    <div class="modal-status" id="deckManagerStatus"></div>
   </div>
 </div>
 
@@ -1721,7 +1774,8 @@ function audioDb() {
   if (audioDbPromise) return audioDbPromise;
   audioDbPromise = new Promise((resolve, reject) => {
     const req = indexedDB.open(AUDIO_DB_NAME, 1);
-    req.onerror = () => reject(req.error);
+    // При сбое не кэшируем отказ — следующая операция попробует открыть базу заново
+    req.onerror = () => { audioDbPromise = null; reject(req.error); };
     req.onupgradeneeded = () => {
       const db = req.result;
       if (!db.objectStoreNames.contains(AUDIO_STORE)) db.createObjectStore(AUDIO_STORE);
@@ -1814,6 +1868,7 @@ async function deleteDeck(id) {
   const toRemove = Object.entries(customTracksMap).filter(([_, ct]) => ct.deckId === id);
   for (const [trackId] of toRemove) {
     try { await dbDeleteBlob(trackId); } catch {}
+    if (blobUrlCache[trackId]) { URL.revokeObjectURL(blobUrlCache[trackId]); delete blobUrlCache[trackId]; }
     delete customTracksMap[trackId];
     const key = 'custom:' + trackId;
     if (memory[key]) delete memory[key];
@@ -1867,6 +1922,8 @@ async function prepareBlobUrl(trackId) {
   if (blobUrlCache[trackId]) return blobUrlCache[trackId];
   const blob = await dbGetBlob(trackId);
   if (!blob) return null;
+  // Параллельный вызов мог успеть создать URL, пока мы ждали IndexedDB
+  if (blobUrlCache[trackId]) return blobUrlCache[trackId];
   const url = URL.createObjectURL(blob);
   blobUrlCache[trackId] = url;
   return url;
@@ -1910,7 +1967,6 @@ function updateSourceUI() {
 
 // === Режимы ===
 const EXAM_SIZE = 20;
-const EXAM_REPLAYS = 2;
 const DRILL_TARGET = 3;
 
 const MODES = {
@@ -1946,7 +2002,7 @@ const MODES = {
   },
   drill: {
     icon: '🔁',
-    name: 'Отработка ошибок',
+    name: 'Заучивание ошибок',
     bullets: [
       'Только треки, на которых ошибались',
       `Чтобы трек ушёл — ${DRILL_TARGET} раза подряд «полностью»`,
@@ -1986,7 +2042,7 @@ function buildDeckPicker() {
     const opt = document.createElement('div');
     opt.className = 'deck-option' + (d.id === activeDeckId ? ' active' : '');
     const cnt = getDeckTracks(d.id).length;
-    opt.innerHTML = `<span>${d.name}${d.readonly ? '' : ''}</span><span class="deck-option-count">${cnt} тр.</span>`;
+    opt.innerHTML = `<span>${esc(d.name)}</span><span class="deck-option-count">${cnt} тр.</span>`;
     opt.onclick = () => { switchDeck(d.id); closeDeckPicker(); };
     menu.appendChild(opt);
   });
@@ -2008,7 +2064,9 @@ function buildDeckPicker() {
 }
 function toggleDeckPicker() {
   const menu = $('deckPickerMenu');
-  if (menu.classList.contains('open')) closeDeckPicker(); else openDeckPicker();
+  if (menu.classList.contains('open')) { closeDeckPicker(); return; }
+  if (!confirmLeaveQuiz()) return; // смена деки прервёт идущую сессию
+  openDeckPicker();
 }
 function openDeckPicker() {
   buildDeckPicker();
@@ -2038,6 +2096,8 @@ function switchDeck(deckId) {
   }
   // Если открыта Статистика — пересчитать под новую деку
   if ($('statsCard') && $('statsCard').style.display !== 'none') renderStats();
+  // Если шёл квиз — корректно выходим в меню (пул треков сменился)
+  if ($('quizCard').style.display !== 'none') goToSetup();
   // Background prepare blob URLs for any custom tracks
   prepareAllBlobUrls().catch(()=>{});
 }
@@ -2050,30 +2110,142 @@ function promptCreateDeck() {
 }
 
 function openDeckManager() {
-  const d = decks[activeDeckId];
-  if (!d || d.readonly) {
-    alert('Это встроенная «Мои треки» — её нельзя переименовать или удалить.\n\nСвои треки можно добавлять прямо сюда: 📋 Библиотека → «Добавить трек».\nА если нужен отдельный набор — создайте новую деку.');
-    return;
-  }
-  const input = prompt(
-    `Дека «${d.name}».\n\n• Введите новое название, чтобы переименовать.\n• Напишите слово УДАЛИТЬ, чтобы удалить деку вместе со всеми её треками.`,
-    d.name
-  );
-  if (input === null) return;
-  const val = input.trim();
-  if (!val) return;
-  if (val.toUpperCase() === 'УДАЛИТЬ') {
-    if (!confirm(`Удалить деку «${d.name}» и все её треки безвозвратно?`)) return;
-    deleteDeck(activeDeckId).then(() => {
-      switchDeck('default');
-      buildDeckPicker();
+  buildDeckManager();
+  const st = $('deckManagerStatus');
+  st.textContent = ''; st.className = 'modal-status';
+  focusModal('deckManagerModal');
+  $('deckManagerModal').classList.add('visible');
+}
+function closeDeckManager() { $('deckManagerModal').classList.remove('visible'); restoreFocus(); }
+function buildDeckManager() {
+  const box = $('deckManagerList');
+  box.innerHTML = '';
+  Object.values(decks).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0)).forEach(d => {
+    const row = document.createElement('div');
+    row.className = 'deck-mgr-row' + (d.id === activeDeckId ? ' active' : '');
+    const cnt = getDeckTracks(d.id).length;
+    row.innerHTML = `
+      <div class="deck-mgr-info">
+        <div class="deck-mgr-name">${esc(d.name)}${d.id === activeDeckId ? ' · активна' : ''}</div>
+        <div class="deck-mgr-count">${plTracks(cnt)}${d.readonly ? ' · встроенная' : ''}</div>
+      </div>
+      ${d.id !== activeDeckId ? '<button class="btn-mini" data-act="open">Открыть</button>' : ''}
+      <button class="btn-mini" data-act="share" title="Сохранить деку в файл">📤 в файл</button>
+      ${d.readonly ? '' : '<button class="btn-mini" data-act="rename" title="Переименовать">✎</button>'}
+      ${d.readonly ? '' : '<button class="btn-mini" data-act="delete" title="Удалить деку">🗑</button>'}
+    `;
+    row.querySelectorAll('[data-act]').forEach(btn => {
+      btn.onclick = async () => {
+        const act = btn.dataset.act;
+        if (act === 'open') {
+          switchDeck(d.id);
+          buildDeckManager();
+        } else if (act === 'share') {
+          await exportDeckFile(d.id);
+        } else if (act === 'rename') {
+          const name = prompt('Новое название деки:', d.name);
+          if (name && name.trim() && renameDeck(d.id, name.trim())) { refreshAll(); buildDeckManager(); buildDeckPicker(); }
+        } else if (act === 'delete') {
+          if (!confirm(`Удалить деку «${d.name}» (${plTracks(cnt)})?\n\nТреки, прогресс и заметки этой деки будут стёрты безвозвратно.`)) return;
+          await deleteDeck(d.id);
+          switchDeck(activeDeckId); // deleteDeck при необходимости уже перевёл на default
+          buildDeckManager();
+        }
+      };
     });
+    box.appendChild(row);
+  });
+}
+
+// === Дека одним файлом: экспорт для друзей / импорт ===
+async function exportDeckFile(deckId) {
+  const d = decks[deckId];
+  if (!d) return;
+  const statusEl = $('deckManagerModal').classList.contains('visible') ? $('deckManagerStatus') : $('progressStatus');
+  const setSt = (t, c) => { statusEl.className = 'modal-status' + (c ? ' ' + c : ''); statusEl.textContent = t; };
+  try {
+    const customs = Object.entries(customTracksMap)
+      .filter(([, ct]) => ct.deckId === deckId)
+      .sort((a, b) => (a[1].order || 0) - (b[1].order || 0));
+    const builtinCount = getDeckTracks(deckId).length - customs.length;
+    if (!customs.length) {
+      setSt(builtinCount > 0
+        ? 'В файл деки попадают только добавленные вами треки — у встроенной программы их нет.'
+        : 'В деке нет треков.', 'err');
+      return;
+    }
+    const tracks = [];
+    for (let i = 0; i < customs.length; i++) {
+      const [id, ct] = customs[i];
+      setSt(`Упаковываю: ${i + 1} из ${customs.length}…`);
+      const blob = await dbGetBlob(id);
+      if (!blob) continue;
+      tracks.push({
+        composer: ct.composer, title: ct.title, fileName: ct.fileName,
+        relPath: ct.relPath || null, order: i + 1,
+        note: userNotes['custom:' + id] || null,
+        audioData: await blobToDataURL(blob),
+      });
+    }
+    const data = { app: 'ugadayka-deck', version: 1, name: d.name, exportedAt: Date.now(), tracks };
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Дека ' + d.name.replace(/[\\/:*?"<>|]/g, '_') + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    const mb = blob.size / 1024 / 1024;
+    setSt(`Файл деки сохранён (${mb < 1 ? (blob.size / 1024).toFixed(0) + ' КБ' : mb.toFixed(1) + ' МБ'}, ${plTracks(tracks.length)})${builtinCount ? '. Встроенные треки в файл не входят.' : ''}`, 'ok');
+  } catch (e) {
+    console.warn('deck export failed', e);
+    setSt('Не удалось сохранить деку: ' + (e && e.message || e), 'err');
+  }
+}
+async function importDeckFile(data) {
+  const tracks = Array.isArray(data.tracks) ? data.tracks : [];
+  if (!tracks.length) { setProgressStatus('В файле деки нет треков', 'err'); return; }
+  let name = String(data.name || 'Импортированная дека').trim() || 'Импортированная дека';
+  if (Object.values(decks).some(d => d.name === name)) name += ' (импорт)';
+  if (!confirm(`Импортировать деку «${name}» (${plTracks(tracks.length)})?\n\nОна добавится отдельной декой, текущие данные не пострадают.`)) {
+    setProgressStatus('Отменено');
     return;
   }
-  if (renameDeck(activeDeckId, val)) {
-    $('deckPickerName').textContent = decks[activeDeckId].name;
-    buildDeckPicker();
+  const deckId = createDeck(name);
+  let added = 0, failed = 0;
+  for (let i = 0; i < tracks.length; i++) {
+    const t = tracks[i];
+    setProgressStatus(`Импортирую: ${i + 1} из ${tracks.length}…`);
+    try {
+      const id = genId('tr_') + i;
+      const blob = dataURLToBlob(t.audioData);
+      await dbPutBlob(id, blob);
+      customTracksMap[id] = {
+        deckId,
+        composer: t.composer || 'Разное',
+        title: t.title || t.fileName || ('Трек ' + (i + 1)),
+        fileName: t.fileName || ('track' + i + '.mp3'),
+        relPath: t.relPath || undefined,
+        addedAt: Date.now(),
+        order: t.order || (i + 1),
+        size: blob.size,
+      };
+      if (t.note) userNotes['custom:' + id] = t.note;
+      added++;
+    } catch (e) { failed++; console.warn('deck import track failed', e); }
   }
+  saveCustomTracksMap(); saveUserNotes(); saveDecks();
+  switchDeck(deckId);
+  prepareAllBlobUrls().catch(() => {});
+  setProgressStatus(failed
+    ? `Дека «${name}»: добавлено ${added}, с ошибкой ${failed}`
+    : `Дека «${name}» импортирована: ${plTracks(added)}. Уже активна.`, failed ? 'err' : 'ok');
+}
+// Универсальный вход: понимает и полный бэкап, и файл деки
+async function importAnyFile(file) {
+  let data = null;
+  try { data = JSON.parse(await file.text()); } catch {}
+  if (data && data.app === 'ugadayka-deck') return importDeckFile(data);
+  return importFullBackup(file);
 }
 
 // === Состояние ===
@@ -2089,13 +2261,29 @@ let isExamMode = false;
 let isExamTeacherMode = false;
 let isDrillMode = false;
 // Состояние сессии
-let examReplaysLeft = EXAM_REPLAYS;
 let examScore = 0;          // сумма взвешенных баллов
 let drillStreaks = {};       // path → текущий correctStreak в этой сессии
 let drillGraduated = 0;      // сколько уже выучено в текущей drill-сессии
 let drillInitialSize = 0;    // исходный размер drill-пула
 
 const $ = id => document.getElementById(id);
+// Экранирование пользовательских строк (имена файлов/папок) перед вставкой в HTML
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// Фокус: при открытии модалки уводим внутрь, при закрытии возвращаем на место
+let lastFocusedBeforeModal = null;
+function focusModal(id) {
+  lastFocusedBeforeModal = document.activeElement;
+  const m = $(id);
+  if (!m) return;
+  const f = m.querySelector('input:not([type=hidden]):not([disabled]), textarea, button:not([disabled])');
+  if (f) setTimeout(() => { try { f.focus(); } catch {} }, 30);
+}
+function restoreFocus() {
+  if (lastFocusedBeforeModal && document.contains(lastFocusedBeforeModal)) {
+    try { lastFocusedBeforeModal.focus(); } catch {}
+  }
+  lastFocusedBeforeModal = null;
+}
 
 // === Фильтры ===
 function buildFilters() {
@@ -2135,7 +2323,11 @@ function buildModeGrid() {
     const card = document.createElement('div');
     card.className = 'mode-card mode-card-big' + (key === activeMode ? ' selected' : '');
     card.dataset.mode = key;
-    const bullets = (m.bullets || []).map(b => `<li>${b}</li>`).join('');
+    let bulletsArr = (m.bullets || []).slice();
+    if (key === 'testing' && !settings.fragmentMode) {
+      bulletsArr = bulletsArr.map(b => b.includes('12-секундный') ? 'Полный трек (фрагмент выключен в ⚙)' : b);
+    }
+    const bullets = bulletsArr.map(b => `<li>${b}</li>`).join('');
     card.innerHTML = `
       <div class="mode-icon">${m.icon}</div>
       <div class="mode-body">
@@ -2144,7 +2336,10 @@ function buildModeGrid() {
         <div class="mode-count" data-count></div>
       </div>
     `;
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
     card.onclick = () => { if (!card.classList.contains('disabled')) { activeMode = key; refreshModeSelection(); } };
+    card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.onclick(); } };
     grid.appendChild(card);
   });
   refreshModeCounts();
@@ -2163,7 +2358,7 @@ function refreshModeCounts() {
   document.querySelectorAll('.mode-card').forEach(c => {
     const key = c.dataset.mode;
     const count = getPoolForMode(key).length;
-    c.querySelector('[data-count]').textContent = count + ' треков';
+    c.querySelector('[data-count]').textContent = plTracks(count);
     c.classList.toggle('disabled', count === 0);
     if (count === 0 && key === activeMode) {
       const next = Object.keys(MODES).find(k => getPoolForMode(k).length > 0);
@@ -2176,10 +2371,10 @@ function renderProgressSummary() {
   const composers = ALL_TRACKS.filter(t => activeComposers.has(t.composer));
   let fresh = 0, seen = 0, withError = 0, learned = 0;
   composers.forEach(t => {
-    const s = getStat(t.path);
-    if (s.last === 'correct') learned++;
-    else if (s.last === 'wrong') withError++;
-    else if ((s.seen || 0) > 0) seen++;
+    const st = trackStatus(t);
+    if (st === 'learned') learned++;
+    else if (st === 'wrong' || st === 'review') withError++;
+    else if (st === 'seen') seen++;
     else fresh++;
   });
   $('progressSummary').innerHTML = `
@@ -2189,7 +2384,15 @@ function renderProgressSummary() {
     <span class="pm-item"><span class="pm-value success">${learned}</span> изучено</span>
   `;
 }
-function refreshAll() { renderProgressSummary(); refreshModeCounts(); updateWelcomeForTracks(); }
+function refreshAll() {
+  renderProgressSummary();
+  refreshModeCounts();
+  updateWelcomeForTracks();
+  // Шапка: имя и счётчик активной деки всегда актуальны
+  const d = decks[activeDeckId];
+  if (d) $('deckPickerName').textContent = d.name;
+  $('deckPickerCount').textContent = ALL_TRACKS.length + ' тр.';
+}
 
 function shuffle(arr) {
   const a = arr.slice();
@@ -2222,7 +2425,9 @@ function showOnly(id) {
     clearFragmentTimer();
   }
   if (id !== 'libraryCard') {
-    // выключаем libAudio если переключились с библиотеки
+    // останавливаем плеер библиотеки при уходе с её экрана
+    const la = document.getElementById('libAudio');
+    if (la) { la.pause(); try { la.currentTime = 0; } catch {} }
     libCurrentTrack = null;
   }
 }
@@ -2234,15 +2439,22 @@ function goToSetup() {
   refreshAll();
   showOnly('setupCard');
 }
-function goToLibrary() { stopTestAudio(); buildLibrary(); showOnly('libraryCard'); }
-function goToStats() { stopTestAudio(); renderStats(); showOnly('statsCard'); }
+// Идёт ли сейчас сессия (квиз на экране) — уход с экрана её прерывает
+function confirmLeaveQuiz() {
+  if ($('quizCard').style.display === 'none') return true;
+  return confirm(isExamMode
+    ? 'Прервать экзамен? Результат не сохранится.'
+    : 'Прервать текущую сессию?');
+}
+function goToLibrary() { if (!confirmLeaveQuiz()) return; stopTestAudio(); buildLibrary(); showOnly('libraryCard'); }
+function goToStats() { if (!confirmLeaveQuiz()) return; stopTestAudio(); renderStats(); showOnly('statsCard'); }
 
 // === Статистика ===
 function renderStats() {
   const tracks = ALL_TRACKS;
   $('statsDeckName').textContent = (decks[activeDeckId] && decks[activeDeckId].name) || '';
   $('statsTotal').textContent = plTracks(tracks.length);
-  let learned = 0, wrong = 0, fresh = 0, corrSum = 0, wrongSum = 0;
+  let learned = 0, wrong = 0, fresh = 0, seenCnt = 0, corrSum = 0, wrongSum = 0;
   const byComp = new Map();
   tracks.forEach(t => {
     const s = getStat(t.path);
@@ -2250,6 +2462,7 @@ function renderStats() {
     if (st === 'learned') learned++;
     else if (st === 'wrong' || st === 'review') wrong++;
     else if (st === 'new') fresh++;
+    else seenCnt++;
     corrSum += s.correct || 0;
     wrongSum += s.wrong || 0;
     if (!byComp.has(t.composer)) byComp.set(t.composer, { total: 0, learned: 0 });
@@ -2261,6 +2474,7 @@ function renderStats() {
   $('statsLearnedPct').textContent = pct + '%';
   $('statsFill').style.width = pct + '%';
   $('stLearned').textContent = learned;
+  $('stSeen').textContent = seenCnt;
   $('stWrong').textContent = wrong;
   $('stNew').textContent = fresh;
   const answered = corrSum + wrongSum;
@@ -2276,7 +2490,7 @@ function renderStats() {
     const row = document.createElement('div');
     row.className = 'stats-comp-row';
     row.innerHTML = `
-      <div class="stats-comp-name">${name}</div>
+      <div class="stats-comp-name">${esc(name)}</div>
       <div class="stats-comp-bar"><div class="stats-comp-fill" style="width:${p}%"></div></div>
       <div class="stats-comp-nums">${c.learned}/${c.total}</div>`;
     box.appendChild(row);
@@ -2290,10 +2504,11 @@ let libCurrentTrack = null;
 
 function trackStatus(t) {
   const s = getStat(t.path);
-  if (s.last === 'correct') return 'learned';
+  // «Выучено» — только полное узнавание (quality 2); частичное — ещё в процессе
+  if (s.lastQuality === 2 || (s.last === 'correct' && s.lastQuality == null)) return 'learned';
   if (s.last === 'wrong') return 'wrong';
   if (s.needsReview) return 'review';
-  if ((s.seen || 0) > 0) return 'seen';
+  if (s.lastQuality === 1 || s.last === 'correct' || (s.seen || 0) > 0) return 'seen';
   return 'new';
 }
 function statusLabel(st) {
@@ -2315,6 +2530,9 @@ function timeAgo(ts) {
 }
 
 function buildLibrary() {
+  // Санируем фильтр композиторов: после смены деки он мог остаться от другой деки
+  const valid = new Set([...libComposerFilter].filter(c => COMPOSERS.includes(c)));
+  libComposerFilter = valid.size ? valid : new Set(COMPOSERS);
   // Кнопка добавления своих треков доступна в любой деке (включая основную программу)
   $('libAddTrackBtn').style.display = '';
   // Статус-фильтр
@@ -2387,8 +2605,8 @@ function renderTrackList() {
     row.className = 'track-row' + (isActive ? ' active' : '');
     row.innerHTML = `
       <div class="track-info">
-        <div class="track-composer">${t.composer}</div>
-        <div class="track-title">${t.title}</div>
+        <div class="track-composer">${esc(t.composer)}</div>
+        <div class="track-title">${esc(t.title)}</div>
         <div class="track-meta">
           <span class="${statusBadgeClass(st)}">${statusLabel(st)}</span>
           ${s.lastAt ? `<span>${timeAgo(s.lastAt)}</span>` : '<span>не открывали</span>'}
@@ -2409,6 +2627,9 @@ function renderTrackList() {
       }
       renderTrackList();
     };
+    row.tabIndex = 0;
+    row.setAttribute('role', 'button');
+    row.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); row.onclick(e); } };
     list.appendChild(row);
     if (isActive) {
       const det = document.createElement('div');
@@ -2421,16 +2642,16 @@ function renderTrackList() {
         <audio id="libAudio" controls autoplay></audio>
         <div class="answer-box visible">
           <div class="answer-label">Композитор</div>
-          <div class="answer-composer">${t.composer}</div>
+          <div class="answer-composer">${esc(t.composer)}</div>
           <div class="answer-label">Произведение</div>
-          <div class="answer-title">${t.title}</div>
+          <div class="answer-title">${esc(t.title)}</div>
         </div>
         <div class="work-note${custom ? ' custom' : ''}" style="display:block;">
           <div class="work-note-header">
             <div class="answer-label">📖 ${custom ? 'Ваша заметка' : (note ? 'Описание' : 'Заметки нет')}</div>
             <button class="btn-mini" data-edit-note>✎ заметка</button>
           </div>
-          <div class="work-note-text">${note || '— добавьте свою заметку —'}</div>
+          <div class="work-note-text">${esc(note) || '— добавьте свою заметку —'}</div>
         </div>
         <div class="lib-results">
           <div class="answer-label">Результаты обучения</div>
@@ -2560,13 +2781,7 @@ function applyFragmentStart() {
 function repeatFragment() {
   const audio = $('audioPlayer');
   if (!isFinite(audio.duration) || audio.duration <= 0) return;
-  // В экзамене считаем повторы
-  if (isExamMode) {
-    if (examReplaysLeft <= 0) return;
-    examReplaysLeft--;
-    $('repeatFragmentBtn').textContent = `▶ Повторить (${examReplaysLeft}) `;
-    if (examReplaysLeft === 0) $('repeatFragmentBtn').disabled = true;
-  }
+  if (isExamMode) return; // в экзамене повторов нет (кнопка скрыта, хоткей отключён)
   fragmentEnabled = true;
   if (!fragmentStartSet) {
     fragmentStart = audio.duration * (0.20 + Math.random() * 0.50);
@@ -2584,9 +2799,19 @@ function playFull() {
 }
 
 // === Квиз ===
+let quizStarting = false;
 async function startQuiz() {
-  // Если есть кастомные треки — предзагрузить их blob URL
-  await prepareAllBlobUrls();
+  if (quizStarting) return; // защита от двойного клика по «Начать»
+  quizStarting = true;
+  const sb = $('startBtn');
+  if (sb) sb.disabled = true;
+  try {
+    // Если есть кастомные треки — предзагрузить их blob URL
+    await prepareAllBlobUrls();
+  } finally {
+    quizStarting = false;
+    if (sb) sb.disabled = false;
+  }
   const m = MODES[activeMode];
   isLearningMode = !!m.isLearning;
   isExamMode = !!m.isExam;
@@ -2603,7 +2828,7 @@ async function startQuiz() {
     alert('Все треки уже прослушаны. Можно отметить какие-то на повтор в Тестировании / Экзамене, либо сбросить прогресс в настройках.');
     return;
   }
-  if (pool.length === 0) { alert('В выбранной категории нет треков'); return; }
+  if (pool.length === 0) { alert('У выбранных композиторов нет треков'); return; }
 
   // Готовим начальный пул
   if (isLearningMode) {
@@ -2623,12 +2848,19 @@ async function startQuiz() {
   currentIdx = -1;
   correct = 0;
   answered = 0;
-  examReplaysLeft = EXAM_REPLAYS;
   examScore = 0;
   drillStreaks = {};
   drillGraduated = 0;
   drillInitialSize = isDrillMode ? queue.length : 0;
   showOnly('quizCard');
+  // Легенда клавиш — по режиму
+  const legend = $('kbdLegend');
+  if (legend) {
+    if (isLearningMode) legend.textContent = 'Space — пауза · Enter — послушал · Esc — закрыть окно';
+    else if (isExamTeacherMode) legend.textContent = 'Space — пауза · 1/2/3 — оценка';
+    else if (isExamMode) legend.textContent = 'Space — пауза · Enter — ответ · 1/2/3 — оценка';
+    else legend.textContent = 'Space — пауза' + (settings.fragmentMode ? ' · R — повтор фрагмента' : '') + ' · Enter — ответ · 1/2/3 — оценка · N — пропуск';
+  }
   $('statTotal').textContent = total;
   updateStats();
   nextTrack();
@@ -2673,7 +2905,6 @@ function nextTrack() {
 
   // Фрагмент-контролы зависят от режима
   if (isLearningMode) fragmentEnabled = false;
-  examReplaysLeft = EXAM_REPLAYS;
 
   const audio = $('audioPlayer');
   audio.src = audioUrlFor(t);
@@ -2717,11 +2948,13 @@ function nextTrack() {
     } else if (isDrillMode) {
       $('playFullBtn').style.display = '';
       $('repeatFragmentBtn').innerHTML = '▶ Повторить фрагмент <span class="kbd-hint">R</span>';
+      $('repeatFragmentBtn').style.display = settings.fragmentMode ? '' : 'none';
       $('skipBtn').style.display = '';
       $('quizHint').textContent = `Заучивание: ${DRILL_TARGET} раза подряд на «полностью» — и трек выучен`;
     } else {
       $('playFullBtn').style.display = '';
       $('repeatFragmentBtn').innerHTML = '▶ Повторить фрагмент <span class="kbd-hint">R</span>';
+      $('repeatFragmentBtn').style.display = settings.fragmentMode ? '' : 'none';
       $('skipBtn').style.display = '';
       $('quizHint').textContent = settings.fragmentMode
         ? 'Слушайте 12-секундный фрагмент и пробуйте вспомнить'
@@ -2754,7 +2987,9 @@ function grade(quality) {
       drillStreaks[track.path] = next;
       if (next >= DRILL_TARGET) {
         drillGraduated++;
-        // НЕ перевставляем — трек "выучен в сессии"
+        // Трек заучен — выходит из пула ошибок насовсем (а не только в этой сессии)
+        const st = memory[track.path];
+        if (st) { st.wrong = 0; saveMemory(); }
       } else {
         const offset = 3 + Math.floor(Math.random() * 3); // 3..5
         const insertAt = Math.min(currentIdx + offset, queue.length);
@@ -2786,6 +3021,12 @@ function grade(quality) {
 }
 function skip() {
   if (isExamMode) return; // в экзамене нельзя пропустить
+  // В заучивании «пропустить» = отложить в конец, иначе трек выпадет из сессии незаучённым
+  if (isDrillMode && currentIdx >= 0 && currentIdx < queue.length) {
+    queue.push(queue[currentIdx]);
+    total = queue.length;
+    $('statTotal').textContent = total;
+  }
   nextTrack();
 }
 function learningNext() {
@@ -2920,7 +3161,7 @@ function endQuiz() {
     if (pct >= 85) { mark = '5'; comment = 'Отлично — готовы к экзамену'; }
     else if (pct >= 70) { mark = '4'; comment = 'Хорошо, но есть что подтянуть'; }
     else if (pct >= 50) { mark = '3'; comment = 'Удовлетворительно — нужно больше тренироваться'; }
-    else { mark = '2'; comment = 'Неудовлетворительно — пройдите Обучение и Отработку ошибок'; }
+    else { mark = '2'; comment = 'Неудовлетворительно — пройдите Обучение и Заучивание ошибок'; }
     $('endTitle').textContent = 'Экзамен завершён';
     scoreEl.classList.add('mark-' + mark);
     scoreEl.textContent = mark;
@@ -2961,9 +3202,10 @@ function endQuiz() {
 function openSettings() {
   updateSourceUI();
   $('fragmentModeToggle').checked = settings.fragmentMode;
+  focusModal('settingsModal');
   $('settingsModal').classList.add('visible');
 }
-function closeSettings() { $('settingsModal').classList.remove('visible'); }
+function closeSettings() { $('settingsModal').classList.remove('visible'); restoreFocus(); }
 
 // === Полный бэкап (прогресс + заметки + деки + аудио треков) ===
 function setProgressStatus(text, type) {
@@ -3020,13 +3262,16 @@ async function exportFullBackup() {
     a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     const mb = blob.size / 1024 / 1024;
-    setProgressStatus(`Файл сохранён (${mb < 1 ? (blob.size / 1024).toFixed(0) + ' КБ' : mb.toFixed(1) + ' МБ'}). Храните его в надёжном месте.`, 'ok');
+    let okMsg = `Файл сохранён (${mb < 1 ? (blob.size / 1024).toFixed(0) + ' КБ' : mb.toFixed(1) + ' МБ'}). Храните его в надёжном месте.`;
+    if (mb > 250) okMsg += ' Бэкап очень большой — для надёжности держите треки и в исходной папке.';
+    setProgressStatus(okMsg, 'ok');
   } catch (e) {
     console.error('export failed', e);
     setProgressStatus('Не удалось сохранить: ' + (e && e.message || e), 'err');
   }
 }
 async function importFullBackup(file) {
+  if (!confirmLeaveQuiz()) return; // восстановление под идущей сессией её сломает
   try {
     setProgressStatus('Читаю файл…');
     const data = JSON.parse(await file.text());
@@ -3056,10 +3301,11 @@ async function importFullBackup(file) {
     } catch {}
     const audio = data.audio || {};
     const ids = Object.keys(audio);
+    let failedAudio = 0;
     for (let i = 0; i < ids.length; i++) {
       setProgressStatus(`Восстанавливаю треки: ${i + 1} из ${ids.length}…`);
       try { await dbPutBlob(ids[i], dataURLToBlob(audio[ids[i]])); }
-      catch (e) { console.warn('restore blob fail', ids[i], e); }
+      catch (e) { failedAudio++; console.warn('restore blob fail', ids[i], e); }
     }
     // Сброс кэша URL и перерисовка
     Object.keys(blobUrlCache).forEach((k) => { try { URL.revokeObjectURL(blobUrlCache[k]); } catch {} delete blobUrlCache[k]; });
@@ -3071,13 +3317,22 @@ async function importFullBackup(file) {
     $('deckPickerName').textContent = (decks[activeDeckId] && decks[activeDeckId].name) || '';
     $('deckPickerCount').textContent = ALL_TRACKS.length + ' тр.';
     prepareAllBlobUrls().catch(() => {});
-    setProgressStatus(`Готово! Восстановлено треков: ${ids.length}.`, 'ok');
+    // Перерисовать открытые экраны и закрыть невалидную сессию
+    if ($('libraryCard').style.display !== 'none') { libCurrentTrack = null; buildLibrary(); }
+    if ($('statsCard').style.display !== 'none') renderStats();
+    if ($('quizCard').style.display !== 'none') goToSetup();
+    if (failedAudio > 0) {
+      setProgressStatus(`Восстановлено треков: ${ids.length - failedAudio} из ${ids.length}, с ошибкой: ${failedAudio}. Попробуйте импорт ещё раз.`, 'err');
+    } else {
+      setProgressStatus(`Готово! Восстановлено треков: ${ids.length}.`, 'ok');
+    }
   } catch (e) {
     console.error('import failed', e);
     setProgressStatus('Не удалось восстановить: ' + (e && e.message || e), 'err');
   }
 }
 async function resetAllProgress() {
+  if (!confirmLeaveQuiz()) return;
   if (!confirm('Сбросить ВЕСЬ прогресс?\n\nОбнулятся результаты, отметки «на повтор» и статистика по всем трекам. Загруженные треки и заметки останутся.')) return;
   memory = {};
   saveMemory();
@@ -3085,6 +3340,9 @@ async function resetAllProgress() {
   buildFilters();
   buildModeGrid();
   refreshAll();
+  if ($('libraryCard').style.display !== 'none') { libCurrentTrack = null; buildLibrary(); }
+  if ($('statsCard').style.display !== 'none') renderStats();
+  if ($('quizCard').style.display !== 'none') goToSetup();
   setProgressStatus('Прогресс сброшен', 'ok');
 }
 
@@ -3102,12 +3360,14 @@ function openNoteEditor(t) {
   } else {
     hint.textContent = 'Заметки нет. Напишите свою.';
   }
+  lastFocusedBeforeModal = document.activeElement;
   $('noteEditorModal').classList.add('visible');
   setTimeout(() => $('noteEditorText').focus(), 50);
 }
 function closeNoteEditor() {
   $('noteEditorModal').classList.remove('visible');
   editingNoteTrack = null;
+  restoreFocus();
 }
 function saveNoteEditor() {
   if (!editingNoteTrack) return;
@@ -3148,6 +3408,7 @@ function openAddTrack() {
   $('addTrackStatus').className = 'modal-status';
   $('addTrackTitleRow').style.display = '';
   $('addTrackSave').textContent = 'Сохранить';
+  focusModal('addTrackModal');
   $('addTrackModal').classList.add('visible');
 }
 function openEditTrack(t) {
@@ -3164,6 +3425,7 @@ function openEditTrack(t) {
   $('addTrackStatus').className = 'modal-status';
   $('addTrackTitleRow').style.display = '';
   $('addTrackSave').textContent = 'Сохранить изменения';
+  focusModal('addTrackModal');
   $('addTrackModal').classList.add('visible');
 }
 function closeAddTrack() {
@@ -3171,6 +3433,7 @@ function closeAddTrack() {
   addTrackFilesArr = [];
   addTrackMode = 'add';
   editingTrackId = null;
+  restoreFocus();
 }
 const AUDIO_EXT_RE = /\.(mp3|wav|m4a|ogg|oga|opus|flac|aac)$/i;
 function isAudioFile(f) {
@@ -3277,37 +3540,55 @@ async function importFolderFiles(fileList) {
   audio.sort((a, b) => (a.webkitRelativePath || a.name)
     .localeCompare(b.webkitRelativePath || b.name, 'ru', { numeric: true }));
   const rootName = ((audio[0].webkitRelativePath || audio[0].name).split('/')[0] || 'Импорт').trim() || 'Импорт';
-  let maxInner = 0;
+  // Мульти-режим (корень с несколькими деками) — только если МИНИМУМ ДВЕ разные
+  // папки первого уровня содержат подпапки. Одна дека, где у автора есть вложенная
+  // папка (диск/часть), больше не «рассыпается» на псевдо-деки.
+  const deepFirstDirs = new Set();
   for (const f of audio) {
-    const d = (f.webkitRelativePath || f.name).split('/').slice(1, -1).length;
-    if (d > maxInner) maxInner = d;
+    const inner = (f.webkitRelativePath || f.name).split('/').slice(1, -1);
+    if (inner.length >= 2) deepFirstDirs.add(inner[0]);
   }
-  const multi = maxInner >= 2;
+  const multi = deepFirstDirs.size >= 2;
   function classify(file) {
     const inner = (file.webkitRelativePath || file.name).split('/').slice(1, -1);
     const base = multi ? inner.slice(1) : inner;
     const deckName = (multi ? (inner[0] || rootName) : rootName).trim() || rootName;
+    // Ключ синхронизации — путь внутри деки (устойчив к одноимённым файлам у одного автора)
+    const relKey = (base.length ? base.join('/') + '/' : '') + file.name;
+    const legacyKey = ((base[0] || '').trim() || '') + '||' + file.name;
     if (base.length >= 1 && base[0].trim()) {
-      return { deckName, composer: base[0].trim(), title: cleanTitle(file.name) };
+      return { deckName, composer: base[0].trim(), title: cleanTitle(file.name), relKey, legacyKey: base[0].trim() + '||' + file.name };
     }
     const p = parseAuthorTitle(file.name);
-    return { deckName, composer: p.composer, title: p.title };
+    return { deckName, composer: p.composer, title: p.title, relKey, legacyKey: p.composer + '||' + file.name };
   }
-  // Желаемое состояние: дека → Map(ключ → {file, composer, title})
+  // Желаемое состояние: дека → Map(relKey → {file, composer, title, legacyKey})
   const byDeck = new Map();
   for (const file of audio) {
     const c = classify(file);
     if (!byDeck.has(c.deckName)) byDeck.set(c.deckName, new Map());
-    byDeck.get(c.deckName).set(c.composer + '||' + file.name, { file, composer: c.composer, title: c.title });
+    byDeck.get(c.deckName).set(c.relKey, { file, composer: c.composer, title: c.title, legacyKey: c.legacyKey });
+  }
+  // Существующую деку матчим по имени ТОЛЬКО среди папочных — ручную деку не захватываем
+  function findFolderDeck(deckName) {
+    return Object.keys(decks).find(id => id !== 'default' && decks[id].fromFolder &&
+      (decks[id].folderName === deckName || decks[id].name === deckName));
+  }
+  function entryKey(ct) { return ct.relPath || (ct.composer + '||' + ct.fileName); }
+  function desiredHas(desired, ct) {
+    if (ct.relPath && desired.has(ct.relPath)) return true;
+    const legacy = ct.composer + '||' + ct.fileName;
+    for (const v of desired.values()) { if (v.legacyKey === legacy) return true; }
+    return false;
   }
   const desiredNames = new Set(byDeck.keys());
   // Треки, ИСЧЕЗНУВШИЕ из дек, которые есть в папке
   const planDeletes = [];
   for (const [deckName, desired] of byDeck) {
-    const deckId = Object.keys(decks).find(id => id !== 'default' && decks[id].name === deckName);
+    const deckId = findFolderDeck(deckName);
     if (!deckId) continue;
     for (const [id, ct] of Object.entries(customTracksMap)) {
-      if (ct.deckId === deckId && !desired.has(ct.composer + '||' + ct.fileName)) planDeletes.push(id);
+      if (ct.deckId === deckId && !desiredHas(desired, ct)) planDeletes.push(id);
     }
   }
   // Целые ДЕКИ, исчезнувшие из этой корневой папки (только мульти-режим).
@@ -3326,25 +3607,31 @@ async function importFolderFiles(fileList) {
   const summary = [];
   let firstDeckId = null, totalAdded = 0, totalUpdated = 0, totalRemoved = 0, totalFailed = 0;
   for (const [deckName, desired] of byDeck) {
-    let deckId = Object.keys(decks).find(id => id !== 'default' && decks[id].name === deckName);
-    if (!deckId) deckId = createDeck(deckName);
+    let deckId = findFolderDeck(deckName);
+    if (!deckId) {
+      // Имя занято ручной декой? Не трогаем её — создаём папочную с пометкой
+      const nameClash = Object.values(decks).some(d => d.id !== 'default' && d.name === deckName && !d.fromFolder);
+      deckId = createDeck(nameClash ? deckName + ' (папка)' : deckName);
+    }
     decks[deckId].fromFolder = true;
+    decks[deckId].folderName = deckName;  // исходное имя папки (для будущих синков)
     decks[deckId].folderRoot = rootName; // запоминаем источник для будущей синхронизации
     if (!firstDeckId) firstDeckId = deckId;
-    // текущие треки деки: ключ → id
+    // текущие треки деки: ключ → id (новые записи — по пути, старые — по composer||fileName)
     const current = new Map();
     for (const [id, ct] of Object.entries(customTracksMap)) {
-      if (ct.deckId === deckId) current.set(ct.composer + '||' + ct.fileName, id);
+      if (ct.deckId === deckId) current.set(entryKey(ct), id);
     }
     let added = 0, updated = 0, removed = 0, failed = 0, order = 0;
     const composers = new Set();
-    for (const [key, { file, composer, title }] of desired) {
+    for (const [key, { file, composer, title, legacyKey }] of desired) {
       composers.add(composer);
       order++;
-      const existId = current.get(key);
+      const existId = current.get(key) || current.get(legacyKey);
       if (existId) {
         const ct = customTracksMap[existId];
         ct.order = order; ct.title = title;
+        ct.relPath = key; // миграция старых записей на путь-ключ
         const changed = ct.size !== undefined && (ct.size !== file.size || ct.lastModified !== file.lastModified);
         if (changed) {
           try {
@@ -3358,13 +3645,15 @@ async function importFolderFiles(fileList) {
         const id = genId('tr_');
         try { await dbPutBlob(id, file); }
         catch (e) { failed++; console.warn('folder import blob fail', file.name, e); continue; }
-        customTracksMap[id] = { deckId, composer, title, fileName: file.name, addedAt: Date.now(), order, size: file.size, lastModified: file.lastModified };
+        customTracksMap[id] = { deckId, composer, title, fileName: file.name, relPath: key, addedAt: Date.now(), order, size: file.size, lastModified: file.lastModified };
         added++;
       }
     }
     if (allowDelete) {
       for (const [key, id] of current) {
         if (desired.has(key)) continue;
+        // старые записи без relPath: сверяем по legacy-ключу
+        if ([...desired.values()].some(v => v.legacyKey === key)) continue;
         try { await dbDeleteBlob(id); } catch {}
         if (blobUrlCache[id]) { URL.revokeObjectURL(blobUrlCache[id]); delete blobUrlCache[id]; }
         delete customTracksMap[id];
@@ -3439,23 +3728,32 @@ async function onFolderImportPicked(fileList) {
   alert(popup);
   goToLibrary();
 }
+let addTrackSaving = false;
 async function saveAddTrack() {
   if (addTrackMode === 'edit') { return saveEditTrack(); }
+  if (addTrackSaving) return; // защита от двойного клика
   const composer = $('addTrackComposer').value.trim();
   const titleInput = $('addTrackTitle').value.trim();
   const note = $('addTrackNote').value.trim();
   if (!addTrackFilesArr.length) { setAddTrackStatus('Выберите аудио-файлы', 'err'); return; }
   if (!composer) { setAddTrackStatus('Укажите композитора', 'err'); return; }
   if (addTrackFilesArr.length === 1 && !titleInput) { setAddTrackStatus('Укажите название', 'err'); return; }
+  addTrackSaving = true;
+  $('addTrackSave').disabled = true;
 
-  let added = 0, failed = 0;
+  // Уже существующие файлы этой деки — не задваиваем
+  const existingKeys = new Set(Object.values(customTracksMap)
+    .filter(ct => ct.deckId === activeDeckId)
+    .map(ct => ct.composer + '||' + ct.fileName));
+  let added = 0, failed = 0, skipped = 0;
   for (let idx = 0; idx < addTrackFilesArr.length; idx++) {
     const file = addTrackFilesArr[idx];
     setAddTrackStatus(`Сохраняю ${idx + 1} из ${addTrackFilesArr.length}…`, '');
+    if (existingKeys.has(composer + '||' + file.name)) { skipped++; continue; }
     const trackId = genId('tr_') + idx;
     const title = addTrackFilesArr.length === 1
       ? titleInput
-      : file.name.replace(/\.(mp3|wav|m4a|ogg|flac|aac)$/i, '');
+      : file.name.replace(AUDIO_EXT_RE, '');
     try {
       await dbPutBlob(trackId, file);
     } catch (e) {
@@ -3463,6 +3761,7 @@ async function saveAddTrack() {
       console.warn('blob put failed', file.name, e);
       continue;
     }
+    existingKeys.add(composer + '||' + file.name);
     customTracksMap[trackId] = {
       deckId: activeDeckId,
       composer,
@@ -3482,7 +3781,12 @@ async function saveAddTrack() {
   await prepareAllBlobUrls().catch(()=>{});
   buildFilters();
   refreshAll();
-  setAddTrackStatus(failed ? `Добавлено ${added}, не удалось ${failed}` : `Добавлено треков: ${added}`, failed ? 'err' : 'ok');
+  addTrackSaving = false;
+  $('addTrackSave').disabled = false;
+  const parts = [`Добавлено: ${added}`];
+  if (skipped) parts.push(`уже было: ${skipped}`);
+  if (failed) parts.push(`не удалось: ${failed}`);
+  setAddTrackStatus(parts.join(', '), failed ? 'err' : 'ok');
   setTimeout(() => {
     closeAddTrack();
     if ($('libraryCard').style.display !== 'none') buildLibrary();
@@ -3599,8 +3903,8 @@ $('playFullBtn').onclick = playFull;
 $('learningNextBtn').onclick = learningNext;
 $('learningBackBtn').onclick = learningBack;
 $('learningReviewBtn').onclick = learningToggleReview;
-$('fragmentModeToggle').onchange = e => { settings.fragmentMode = e.target.checked; saveSettings(); };
-$('restartBtn').onclick = goToSetup;
+$('fragmentModeToggle').onchange = e => { settings.fragmentMode = e.target.checked; saveSettings(); buildModeGrid(); };
+$('restartBtn').onclick = () => { if (confirmLeaveQuiz()) goToSetup(); };
 $('againBtn').onclick = goToSetup;
 $('shareResultBtn').onclick = shareResult;
 
@@ -3653,8 +3957,22 @@ $('shareResultBtn').onclick = shareResult;
     const r = bar.getBoundingClientRect();
     try { audio.currentTime = d * Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)); } catch {}
   });
-  vol.addEventListener('input', () => { audio.volume = vol.value / 100; });
+  // Громкость запоминается между сессиями
+  vol.value = Math.round(((settings.volume != null ? settings.volume : 0.9)) * 100);
+  vol.addEventListener('input', () => {
+    audio.volume = vol.value / 100;
+    settings.volume = audio.volume;
+    saveSettings();
+  });
   audio.volume = vol.value / 100;
+  // Стрелки ←/→ перематывают на ±5 сек (когда полоса доступна)
+  bar.addEventListener('keydown', (e) => {
+    if (ui.classList.contains('no-seek')) return;
+    const d = audio.duration;
+    if (!isFinite(d) || d <= 0) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); try { audio.currentTime = Math.max(0, audio.currentTime - 5); } catch {} }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); try { audio.currentTime = Math.min(d, audio.currentTime + 5); } catch {} }
+  });
 })();
 
 $('libraryBtn').onclick = goToLibrary;
@@ -3663,6 +3981,7 @@ $('statsBtn').onclick = goToStats;
 $('statsBackBtn').onclick = goToWelcome;
 $('settingsBtn').onclick = openSettings;
 $('deckPicker').onclick = (e) => { e.stopPropagation(); toggleDeckPicker(); };
+$('deckPicker').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleDeckPicker(); } };
 document.addEventListener('click', (e) => {
   const menu = $('deckPickerMenu');
   if (menu && menu.classList.contains('open') && !menu.contains(e.target) && e.target.id !== 'deckPicker' && !$('deckPicker').contains(e.target)) {
@@ -3684,6 +4003,7 @@ $('addTrackModal').addEventListener('click', e => { if (e.target.id === 'addTrac
 // === Перетаскивание файлов (drag-and-drop) ===
 // Зона на стартовом экране: клик → выбор файлов, перетаскивание → добавление
 $('dropZone').onclick = () => $('welcomeFilePicker').click();
+$('dropZone').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('welcomeFilePicker').click(); } };
 $('welcomeFilePicker').addEventListener('change', e => {
   const files = Array.from(e.target.files || []); // копируем ДО сброса value
   e.target.value = '';
@@ -3716,12 +4036,42 @@ $('importBtn').onclick = () => $('importFile').click();
 $('importFile').addEventListener('change', e => {
   const f = (e.target.files || [])[0];
   e.target.value = '';
-  if (f) importFullBackup(f);
+  if (f) importAnyFile(f); // понимает и полный бэкап, и файл деки
 });
 $('resetBtn').onclick = resetAllProgress;
+$('shareDeckBtn').onclick = () => exportDeckFile(activeDeckId);
 
+// Управление деками
+$('deckManagerClose').onclick = closeDeckManager;
+$('deckManagerModal').addEventListener('click', e => { if (e.target.id === 'deckManagerModal') closeDeckManager(); });
+$('deckManagerCreate').onclick = () => { promptCreateDeck(); buildDeckManager(); };
+
+const ALL_MODALS = ['settingsModal', 'addTrackModal', 'noteEditorModal', 'installModal', 'deckManagerModal'];
 document.addEventListener('keydown', e => {
+  // Escape закрывает любые открытые окна и меню дек (с возвратом фокуса)
+  if (e.key === 'Escape') {
+    closeDeckPicker();
+    closeSettings(); closeAddTrack(); closeNoteEditor(); closeInstallGuide(); closeDeckManager();
+    return;
+  }
+  // Tab внутри открытой модалки ходит по кругу, не утекая на страницу
+  if (e.key === 'Tab') {
+    const open = ALL_MODALS.map(id => $(id)).find(m => m && m.classList.contains('visible'));
+    if (open) {
+      const items = [...open.querySelectorAll('button, input:not([type=hidden]), textarea, select, [tabindex]:not([tabindex="-1"])')]
+        .filter(el => !el.disabled && el.offsetParent !== null);
+      if (items.length) {
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && (document.activeElement === first || !open.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && (document.activeElement === last || !open.contains(document.activeElement))) { e.preventDefault(); first.focus(); }
+      }
+      return;
+    }
+  }
+  if (e.repeat) return; // зажатая клавиша не должна «прощёлкивать» вопросы
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  // Пока открыта модалка — горячие клавиши квиза не работают
+  if (ALL_MODALS.some(id => { const m = $(id); return m && m.classList.contains('visible'); })) return;
   if ($('quizCard').style.display === 'none') return;
   const audio = $('audioPlayer');
   const inReveal = $('revealBtns').style.display !== 'none';
@@ -3731,7 +4081,7 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     if (audio.paused) audio.play().catch(()=>{}); else audio.pause();
   } else if (e.key === 'r' || e.key === 'R' || e.key === 'к' || e.key === 'К') {
-    if (!inLearning && !isExamMode) { e.preventDefault(); repeatFragment(); }
+    if (!inLearning && !isExamMode && settings.fragmentMode) { e.preventDefault(); repeatFragment(); }
   } else if (e.key === 'Enter') {
     e.preventDefault();
     if (inLearning) learningNext();
@@ -3784,18 +4134,26 @@ function openInstallGuide() {
       android: 'На вашем устройстве: меню браузера ⋮ → «Установить приложение».',
       desktop: 'На вашем устройстве: значок установки в адресной строке или меню браузера.',
     })[plat] || '';
+    // Браузеры без поддержки установки PWA — честно подсказываем, куда идти
+    const ua = navigator.userAgent;
+    const isFirefox = /firefox/i.test(ua);
+    const isDesktopSafari = /safari/i.test(ua) && !/chrome|chromium|crios|edg|android/i.test(ua) && !isIOSDevice();
+    if (!deferredInstallPrompt && !isAppInstalled() && (isFirefox || isDesktopSafari)) {
+      hint.className = 'modal-status err';
+      hint.textContent = 'Ваш браузер не поддерживает установку приложений. Откройте musquiz.ru в Chrome или Edge (на iPhone — в Safari) и установите оттуда.';
+    }
   }
-  // QR на сайт (грузится один раз; без интернета просто скрыт)
+  // QR на сайт (без интернета скрыт; при каждом открытии пробуем снова)
   const qr = $('qrImg');
-  if (qr && !qr.dataset.loaded) {
-    qr.dataset.loaded = '1';
+  if (qr && qr.dataset.ok !== '1') {
     qr.onerror = () => { qr.style.display = 'none'; };
-    qr.onload = () => { qr.style.display = ''; };
-    qr.src = 'https://api.qrserver.com/v1/create-qr-code/?size=340x340&margin=1&data=' + encodeURIComponent(SHARE_URL);
+    qr.onload = () => { qr.style.display = ''; qr.dataset.ok = '1'; };
+    qr.src = 'https://api.qrserver.com/v1/create-qr-code/?size=340x340&margin=1&data=' + encodeURIComponent(SHARE_URL) + '&r=' + Math.floor(performance.now());
   }
+  focusModal('installModal');
   $('installModal').classList.add('visible');
 }
-function closeInstallGuide() { $('installModal').classList.remove('visible'); }
+function closeInstallGuide() { $('installModal').classList.remove('visible'); restoreFocus(); }
 // На телефоне импорт папки не работает — прячем его, упор на выбор отдельных файлов
 function adaptForMobile() {
   if (!isMobile()) return;
@@ -3824,6 +4182,8 @@ try {
   adaptForMobile();
   // Просим браузер не вычищать наше хранилище (треки в IndexedDB) при нехватке места
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch {}
+  // Статусы операций озвучиваются скринридером
+  document.querySelectorAll('.modal-status, .audio-check-status').forEach(el => el.setAttribute('role', 'status'));
 } catch (e) {
   console.error('Init failed:', e);
   alert('Ошибка инициализации: ' + (e && e.message ? e.message : e));
@@ -3836,5 +4196,6 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   });
 }
 </script>
+<!-- Yandex.Metrika counter --><script type="text/javascript">(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=109748193','ym');ym(109748193, "init", {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer:document.referrer, url:location.href, accurateTrackBounce:true, trackLinks:true});</script><noscript><div><img src="https://mc.yandex.ru/watch/109748193" style="position:absolute; left:-9999px;" alt=""/></div></noscript><!-- /Yandex.Metrika counter -->
 </body>
 </html>
