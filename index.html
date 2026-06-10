@@ -683,6 +683,37 @@
   .qr-caption { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
   .qr-caption b { color: var(--text); }
 
+  /* SEO-блок (только на сайте, инжектится при сборке) */
+  .seo-block {
+    margin-top: 28px;
+    padding: 22px 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .seo-block h2 { font-size: 18px; color: var(--text); margin-bottom: 10px; }
+  .seo-block h3 { font-size: 15px; color: var(--text); margin: 16px 0 6px; }
+  .seo-block p { margin-bottom: 8px; }
+  .seo-block b { color: var(--text); }
+
+  /* «Что нового» */
+  .whatsnew-link { position: relative; }
+  .whatsnew-link.has-new::after {
+    content: '';
+    position: absolute;
+    top: -2px; right: -8px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .changelog-entry { margin-bottom: 16px; }
+  .changelog-date { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .changelog-entry ul { margin: 0; padding-left: 18px; }
+  .changelog-entry li { font-size: 14px; line-height: 1.6; color: var(--text); margin-bottom: 3px; }
+
   /* Управление деками */
   .deck-mgr-row {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
@@ -1490,10 +1521,12 @@
     </div>
   </div>
 
+  <section class="seo-block"><h2>Угадайка — онлайн-тренажёр по музыкальной литературе</h2><p>«Угадайка» помогает подготовиться к экзамену или зачёту по музлитературе и слушанию музыки: вы слушаете фрагменты произведений и учитесь узнавать композитора и название на слух. Тренажёр подходит студентам музыкальных училищ и колледжей, ученикам ДМШ и ДШИ, абитуриентам консерваторий и всем, кто любит классическую музыку.</p><h3>Как проходит тренировка</h3><p>Загрузите свои аудиофайлы или целую папку с программой экзамена — приложение само создаст набор: дека получит имя папки, а авторы определятся по подпапкам. Четыре режима на выбор: <b>обучение</b> с подсказками и заметками к произведениям, <b>тестирование</b> по случайным фрагментам, <b>экзамен</b> с оценкой по пятибалльной шкале и <b>заучивание ошибок</b>, пока каждый трек не закрепится в памяти.</p><h3>Почему это удобно</h3><p>Музыкальная викторина работает прямо в браузере и полностью бесплатно: без регистрации, аудио хранится на вашем устройстве и никуда не отправляется. Сайт устанавливается как приложение на телефон и компьютер и работает офлайн. Прогресс, статистика по композиторам и заметки сохраняются автоматически, а деку с треками можно отправить одногруппникам одним файлом.</p><h3>Частые вопросы</h3><p><b>Это бесплатно?</b> Да, полностью бесплатно и без рекламы.</p><p><b>Какие произведения можно учить?</b> Любые — от Баха и Моцарта до Прокофьева, Шостаковича и Свиридова: вы загружаете свою программу.</p><p><b>Подойдёт ли для подготовки к экзамену?</b> Да: режим «Экзамен» имитирует реальное слушание — случайные фрагменты без подсказок, без перемотки и с оценкой в конце.</p></section>
   <footer class="app-footer">
-    © 2026 Артём Колосов · «Угадайка»<span id="buildVer"> · сборка bfea2d11</span><br>
+    © 2026 Артём Колосов · «Угадайка»<span id="buildVer"> · сборка 97c57fff</span><br>
     <a href="https://t.me/ArtyoemkaBlog" target="_blank" rel="noopener">Telegram автора</a>
-    · <a href="https://web.tribute.tg/d/LEX" target="_blank" rel="noopener" class="donate">💜 Поддержать автора</a><br>
+    · <a href="https://web.tribute.tg/d/LEX" target="_blank" rel="noopener" class="donate">💜 Поддержать автора</a>
+    · <a href="#" id="whatsNewLink" class="whatsnew-link">📰 Что нового</a><br>
     Почта для связи: <span class="contact-email">a.kolosov2003@mail.ru</span>
   </footer>
 </div>
@@ -1638,6 +1671,17 @@
       <button class="btn full" id="deckManagerCreate">➕ Создать новую деку</button>
     </div>
     <div class="modal-status" id="deckManagerStatus"></div>
+  </div>
+</div>
+
+<!-- === CHANGELOG (что нового) === -->
+<div class="modal-backdrop" id="changelogModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Что нового">
+    <div class="modal-header">
+      <h2>📰 Что нового</h2>
+      <button class="btn ghost" id="changelogClose" style="padding:4px 10px; font-size:18px;">×</button>
+    </div>
+    <div id="changelogList"></div>
   </div>
 </div>
 
@@ -2247,6 +2291,65 @@ async function importAnyFile(file) {
   if (data && data.app === 'ugadayka-deck') return importDeckFile(data);
   return importFullBackup(file);
 }
+
+// === «Что нового» (журнал обновлений) ===
+// Новые записи добавлять В НАЧАЛО массива. id — растущее число (по нему считается бейдж).
+const CHANGELOG = [
+  {
+    id: 3,
+    date: '10 июня 2026',
+    items: [
+      '📤 Деку теперь можно отправить друзьям одним файлом: ⚙ → «Поделиться текущей декой» (или 📤 в «Управлении деками»). У получателя она появится отдельной декой со всеми треками и заметками.',
+      '🗂 «Управление деками» переехало в удобное окно: переименование, удаление и экспорт — кнопками.',
+      '📊 Статистика стала честнее: «частично угадал» больше не считается выученным, добавлена графа «В процессе».',
+      '🔁 «Заучивание ошибок»: выученные треки выбывают из пула насовсем, «Пропустить» откладывает трек в конец.',
+      '📱 Большой пакет мобильных исправлений: выбор аудио на iPhone, липкая шапка, крупные кнопки, тёмная тема без «залипших» подсветок.',
+      '🔊 Громкость запоминается, Escape закрывает окна, всё управляется с клавиатуры.',
+    ],
+  },
+  {
+    id: 2,
+    date: '9 июня 2026',
+    items: [
+      '🌐 «Угадайка» переехала на собственный домен musquiz.ru и ставится как приложение на телефон и компьютер (работает офлайн).',
+      '💾 Полный бэкап одним файлом: прогресс, заметки, деки и треки переносятся между устройствами.',
+      '🎚 Новый плеер: в режимах угадывания длительность трека скрыта в любом браузере.',
+      '📣 Кнопка «Поделиться результатом» после экзамена и теста + QR-код для друзей.',
+    ],
+  },
+  {
+    id: 1,
+    date: '2 июня 2026',
+    items: [
+      '📁 Импорт папки целиком: дека по имени папки, авторы по подпапкам, «Обновить из папки» синхронизирует изменения.',
+      '🎓 Режимы: Обучение, Тестирование, Экзамен с оценкой, Заучивание ошибок.',
+      '🎵 Перетаскивание аудиофайлов прямо в окно приложения.',
+    ],
+  },
+];
+const CHANGELOG_SEEN_KEY = 'ugadayka_changelog_seen_v1';
+function latestChangelogId() { return CHANGELOG.length ? CHANGELOG[0].id : 0; }
+function updateWhatsNewBadge() {
+  const link = $('whatsNewLink');
+  if (!link) return;
+  const seen = parseInt(localStorage.getItem(CHANGELOG_SEEN_KEY) || '0', 10) || 0;
+  link.classList.toggle('has-new', latestChangelogId() > seen);
+}
+function openChangelog() {
+  const box = $('changelogList');
+  box.innerHTML = '';
+  CHANGELOG.forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'changelog-entry';
+    div.innerHTML = `<div class="changelog-date">${esc(entry.date)}</div><ul>${entry.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`;
+    box.appendChild(div);
+  });
+  try { localStorage.setItem(CHANGELOG_SEEN_KEY, String(latestChangelogId())); } catch {}
+  updateWhatsNewBadge();
+  focusModal('changelogModal');
+  $('changelogModal').classList.add('visible');
+}
+function closeChangelog() { $('changelogModal').classList.remove('visible'); restoreFocus(); }
 
 // === Состояние ===
 let activeComposers = new Set(COMPOSERS);
@@ -4046,12 +4149,17 @@ $('deckManagerClose').onclick = closeDeckManager;
 $('deckManagerModal').addEventListener('click', e => { if (e.target.id === 'deckManagerModal') closeDeckManager(); });
 $('deckManagerCreate').onclick = () => { promptCreateDeck(); buildDeckManager(); };
 
-const ALL_MODALS = ['settingsModal', 'addTrackModal', 'noteEditorModal', 'installModal', 'deckManagerModal'];
+// Что нового
+$('whatsNewLink').onclick = (e) => { e.preventDefault(); openChangelog(); };
+$('changelogClose').onclick = closeChangelog;
+$('changelogModal').addEventListener('click', e => { if (e.target.id === 'changelogModal') closeChangelog(); });
+
+const ALL_MODALS = ['settingsModal', 'addTrackModal', 'noteEditorModal', 'installModal', 'deckManagerModal', 'changelogModal'];
 document.addEventListener('keydown', e => {
   // Escape закрывает любые открытые окна и меню дек (с возвратом фокуса)
   if (e.key === 'Escape') {
     closeDeckPicker();
-    closeSettings(); closeAddTrack(); closeNoteEditor(); closeInstallGuide(); closeDeckManager();
+    closeSettings(); closeAddTrack(); closeNoteEditor(); closeInstallGuide(); closeDeckManager(); closeChangelog();
     return;
   }
   // Tab внутри открытой модалки ходит по кругу, не утекая на страницу
@@ -4184,6 +4292,7 @@ try {
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch {}
   // Статусы операций озвучиваются скринридером
   document.querySelectorAll('.modal-status, .audio-check-status').forEach(el => el.setAttribute('role', 'status'));
+  updateWhatsNewBadge();
 } catch (e) {
   console.error('Init failed:', e);
   alert('Ошибка инициализации: ' + (e && e.message ? e.message : e));
