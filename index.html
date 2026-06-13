@@ -192,6 +192,31 @@
   }
   .icon-btn:hover { background: var(--bg-card-hover); color: var(--text); }
 
+  /* Переключатель языка (инжектится при сборке сайта) */
+  .lang-toggle {
+    display: inline-flex;
+    align-items: center;
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-card);
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .lang-toggle a, .lang-toggle span {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 11px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: all .12s;
+  }
+  .lang-toggle a:hover { background: var(--bg-card-hover); color: var(--text); }
+  .lang-toggle .lang-on { background: var(--accent); color: #fff; cursor: default; }
+
   /* === Card === */
   .card {
     background: var(--bg-card);
@@ -1278,7 +1303,7 @@
       </div>
       <div class="deck-picker-menu" id="deckPickerMenu"></div>
     </div>
-    <div class="header-actions">
+    <div class="header-actions"><div class="lang-toggle" role="group" aria-label="RU / EN"><span class="lang-on" aria-current="true">RU</span><a href="/en/" hreflang="en" title="English version">EN</a></div>
       <button class="icon-btn" id="installBtn" title="Установить приложение" style="display:none;">📲</button>
       <button class="icon-btn" id="statsBtn" title="Статистика">📊</button>
       <button class="icon-btn" id="libraryBtn" title="Библиотека">📋</button>
@@ -1528,7 +1553,7 @@
 
   <section class="seo-block"><h2>Угадайка — онлайн-тренажёр по музыкальной литературе</h2><p>«Угадайка» помогает подготовиться к экзамену или зачёту по музлитературе и слушанию музыки: вы слушаете фрагменты произведений и учитесь узнавать композитора и название на слух. Тренажёр подходит студентам музыкальных училищ и колледжей, ученикам ДМШ и ДШИ, абитуриентам консерваторий и всем, кто любит классическую музыку.</p><h3>Как проходит тренировка</h3><p>Загрузите свои аудиофайлы или целую папку с программой экзамена — приложение само создаст набор: дека получит имя папки, а авторы определятся по подпапкам. Четыре режима на выбор: <b>обучение</b> с подсказками и заметками к произведениям, <b>тестирование</b> по случайным фрагментам, <b>экзамен</b> с оценкой по пятибалльной шкале и <b>заучивание ошибок</b>, пока каждый трек не закрепится в памяти.</p><h3>Почему это удобно</h3><p>Музыкальная викторина работает прямо в браузере и полностью бесплатно: без регистрации, аудио хранится на вашем устройстве и никуда не отправляется. Сайт устанавливается как приложение на телефон и компьютер и работает офлайн. Прогресс, статистика по композиторам и заметки сохраняются автоматически, а деку с треками можно отправить одногруппникам одним файлом.</p><p>Регулярные занятия в формате «угадай мелодию» развивают музыкальный слух и навык слухового анализа произведений: вы быстрее узнаёте стиль композитора, тембры и темы — именно это проверяют на слушании музыки.</p><h3>Частые вопросы</h3><p><b>Это бесплатно?</b> Да, полностью бесплатно и без рекламы.</p><p><b>Какие произведения можно учить?</b> Любые — от Баха и Моцарта до Прокофьева, Шостаковича и Свиридова: вы загружаете свою программу.</p><p><b>Подойдёт ли для подготовки к экзамену?</b> Да: режим «Экзамен» имитирует реальное слушание — случайные фрагменты без подсказок, без перемотки и с оценкой в конце.</p></section>
   <footer class="app-footer">
-    © 2026 Артём Колосов · «Угадайка»<span id="buildVer"> · сборка 0f0ee78d</span><br>
+    © 2026 Артём Колосов · «Угадайка»<span id="buildVer"> · сборка 13271eda</span><br>
     <a href="https://t.me/ArtyoemkaBlog" target="_blank" rel="noopener">Telegram автора</a>
     · <a href="https://web.tribute.tg/d/LEX" target="_blank" rel="noopener" class="donate">💜 Поддержать автора</a>
     · <a href="#" id="whatsNewLink" class="whatsnew-link">📰 Что нового</a> · <a href="/en/" class="lang-switch" hreflang="en">EN</a><br>

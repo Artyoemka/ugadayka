@@ -1,4 +1,4 @@
-const CACHE = 'ugadayka-0f0ee78d';
+const CACHE = 'ugadayka-13271eda';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-512-maskable.png', './favicon.ico', './en/', './en/index.html', './en/manifest.json'];
 self.addEventListener('install', (e) => {
   // Каждый ресурс добавляем независимо: отсутствие одного не валит установку

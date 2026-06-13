@@ -192,6 +192,31 @@
   }
   .icon-btn:hover { background: var(--bg-card-hover); color: var(--text); }
 
+  /* Переключатель языка (инжектится при сборке сайта) */
+  .lang-toggle {
+    display: inline-flex;
+    align-items: center;
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-card);
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .lang-toggle a, .lang-toggle span {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 11px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: all .12s;
+  }
+  .lang-toggle a:hover { background: var(--bg-card-hover); color: var(--text); }
+  .lang-toggle .lang-on { background: var(--accent); color: #fff; cursor: default; }
+
   /* === Card === */
   .card {
     background: var(--bg-card);
@@ -1278,7 +1303,7 @@
       </div>
       <div class="deck-picker-menu" id="deckPickerMenu"></div>
     </div>
-    <div class="header-actions">
+    <div class="header-actions"><div class="lang-toggle" role="group" aria-label="RU / EN"><a href="/" hreflang="ru" title="Russian version">RU</a><span class="lang-on" aria-current="true">EN</span></div>
       <button class="icon-btn" id="installBtn" title="Install the app" style="display:none;">📲</button>
       <button class="icon-btn" id="statsBtn" title="Stats">📊</button>
       <button class="icon-btn" id="libraryBtn" title="Library">📋</button>
@@ -1528,7 +1553,7 @@
 
   <section class="seo-block"><h2>MusQuiz — online drop-the-needle trainer</h2><p>MusQuiz helps you prepare for music history and listening exams: you hear excerpts and learn to recognize the composer and the piece by ear. It works for college music majors, conservatory students, music appreciation classes — and anyone who loves classical music.</p><h3>How practice works</h3><p>Upload audio files or a whole folder with your exam syllabus — the app builds the set automatically: the deck takes the folder name and composers come from subfolders. Four modes: <b>Learning</b> with notes and hints, <b>Practice</b> on random excerpts, <b>Exam</b> with a final grade, and <b>Drill</b> that repeats your mistakes until every track sticks.</p><h3>Why it works</h3><p>The quiz runs right in your browser, completely free: no accounts, your audio stays on your device and is never uploaded. The site installs as an app on phones and computers and works offline. Progress, per-composer stats and notes save automatically, and you can send a whole deck to classmates as a single file.</p><p>Regular drop-the-needle practice trains your ear and aural analysis: you start recognizing a composer’s style, timbres and themes faster — exactly what listening exams test.</p><h3>FAQ</h3><p><b>Is it free?</b> Yes — completely free, no ads.</p><p><b>What repertoire can I practice?</b> Anything — from Bach and Mozart to Prokofiev and Shostakovich: you upload your own syllabus.</p><p><b>Will it help me prepare for an exam?</b> Yes: Exam mode mimics the real test — random excerpts, no hints, no seeking, graded at the end.</p></section>
   <footer class="app-footer">
-    © 2026 Artyom Kolosov · MusQuiz<span id="buildVer"> · build 0f0ee78d</span><br>
+    © 2026 Artyom Kolosov · MusQuiz<span id="buildVer"> · build 13271eda</span><br>
     <a href="https://t.me/ArtyoemkaBlog" target="_blank" rel="noopener">Author’s Telegram</a>
     · <a href="https://web.tribute.tg/d/LEX" target="_blank" rel="noopener" class="donate">💜 Support the author</a>
     · <a href="#" id="whatsNewLink" class="whatsnew-link">📰 What’s new</a> · <a href="/" class="lang-switch" hreflang="ru">RU</a><br>
